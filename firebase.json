@@ -1,0 +1,26 @@
+{
+  "hosting": {
+    "public": "out",
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/admin/messages",
+        "destination": "/admin/messages.html"
+      },
+      {
+        "source": "/admin/nouveau-client",
+        "destination": "/admin/nouveau-client.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

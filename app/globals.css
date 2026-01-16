@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+:root {
+    --stone-light: #F7F5F0;
+    --copper-gold: #B88A44;
+}
+
+@layer base {
+    body {
+        /* Effet de lumière diffuse prestige */
+        background-image:
+                radial-gradient(at 0% 0%, rgba(184, 138, 68, 0.08) 0, transparent 40%),
+                radial-gradient(at 100% 100%, rgba(184, 138, 68, 0.05) 0, transparent 40%);
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+
+    /* Le grain de pierre douce */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1; /* TRÈS IMPORTANT : Derrière tout */
+        pointer-events: none;
+        opacity: 0.15;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+    }
+}
+
+html {
+    scroll-behavior: smooth;
+    /* On active le snap pour tout le monde, mais de manière intelligente */
+    scroll-snap-type: y mandatory;
+    height: 100%;
+}
+
+@media (min-width: 1024px) {
+    html {
+        /* On s'assure que le scroll reste sur le HTML global */
+        overflow-y: visible;
+    }
+}
+/* Cache l'ascenseur */
+::-webkit-scrollbar { display: none; }
+html, body { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* --- NOUVEAU : CIBLEZ VOS SECTIONS --- */
+/* Ajoutez cette classe à vos <section> dans page.tsx pour un arrêt net */
+.snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always; /* FORCE l'arrêt sur chaque section, empêche de sauter trop vite */
+}
+
+.snap-container {
+    scroll-snap-type: y mandatory;
+}
