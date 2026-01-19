@@ -2,72 +2,70 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import {
-    BookOpen, Plus, Trash2, Edit2, Save, X, Search, Clock,
-    ArrowLeft, FolderPlus, Folder, DollarSign, Sparkles, Home,
-    Scissors, Leaf, Key, MoreHorizontal
+    Package, Plus, Trash2, Edit2, Save, X, Wine, Sparkles, ShoppingBag,
+    ArrowLeft, Search, Euro, FolderPlus, Folder, Tag
 } from 'lucide-react';
 import Link from 'next/link';
 
-interface Prestation {
+interface Product {
     id: string;
-    desc: string;
-    duration: number;
+    name: string;
+    description?: string;
+    price: number;
     category: string;
+    unit: string;
 }
 
-interface PrestationCategory {
+interface ProductCategory {
     id: string;
     name: string;
     icon: string;
 }
 
-const ICON_OPTIONS = [
-    { id: 'sparkles', name: 'Ménage', icon: Sparkles },
-    { id: 'leaf', name: 'Jardin', icon: Leaf },
-    { id: 'home', name: 'Maison', icon: Home },
-    { id: 'key', name: 'Conciergerie', icon: Key },
-    { id: 'scissors', name: 'Entretien', icon: Scissors },
-    { id: 'folder', name: 'Autre', icon: Folder },
+const DEFAULT_CATEGORIES: ProductCategory[] = [
+    { id: 'menage', name: 'Produits Ménagers', icon: 'sparkles' },
+    { id: 'vin', name: 'Vins & Spiritueux', icon: 'wine' },
+    { id: 'autre', name: 'Autres Produits', icon: 'shopping-bag' },
 ];
 
-const DEFAULT_CATEGORIES: Omit<PrestationCategory, 'id'>[] = [
-    { name: 'Ménage', icon: 'sparkles' },
-    { name: 'Jardinage', icon: 'leaf' },
-    { name: 'Entretien', icon: 'scissors' },
-    { name: 'Conciergerie', icon: 'key' },
-    { name: 'Autre', icon: 'folder' },
+const ICON_OPTIONS = [
+    { id: 'sparkles', name: 'Ménage', icon: Sparkles },
+    { id: 'wine', name: 'Vin', icon: Wine },
+    { id: 'shopping-bag', name: 'Shopping', icon: ShoppingBag },
+    { id: 'package', name: 'Colis', icon: Package },
+    { id: 'folder', name: 'Dossier', icon: Folder },
+    { id: 'tag', name: 'Tag', icon: Tag },
 ];
 
 const getIconComponent = (iconId: string) => {
     const found = ICON_OPTIONS.find(i => i.id === iconId);
-    return found ? found.icon : Folder;
+    return found ? found.icon : Package;
 };
 
-export default function CataloguePage() {
-    const [prestations, setPrestations] = useState<Prestation[]>([]);
-    const [categories, setCategories] = useState<PrestationCategory[]>([]);
+export default function CatalogueProduits() {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<ProductCategory[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showCategoryModal, setShowCategoryModal] = useState(false);
-    const [editingPrestation, setEditingPrestation] = useState<Prestation | null>(null);
-    const [editingCategory, setEditingCategory] = useState<PrestationCategory | null>(null);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+    const [editingCategory, setEditingCategory] = useState<ProductCategory | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [hourlyRate, setHourlyRate] = useState(35);
-    const [isEditingRate, setIsEditingRate] = useState(false);
-    const [tempRate, setTempRate] = useState(35);
 
     const [formData, setFormData] = useState({
-        desc: '',
-        duration: 30,
-        category: ''
+        name: '',
+        description: '',
+        price: 0,
+        category: '',
+        unit: 'unité'
     });
 
     const [categoryFormData, setCategoryFormData] = useState({
         name: '',
-        icon: 'folder'
+        icon: 'package'
     });
 
     useEffect(() => {
@@ -76,34 +74,26 @@ export default function CataloguePage() {
 
     const fetchData = async () => {
         try {
-            // Charger les prestations
-            const prestationsSnap = await getDocs(collection(db, "prestations"));
-            const prestationsData = prestationsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Prestation));
-            setPrestations(prestationsData);
+            // Charger les produits
+            const productsSnap = await getDocs(collection(db, "products"));
+            const productsData = productsSnap.docs.map(d => ({ id: d.id, ...d.data() } as Product));
+            setProducts(productsData);
 
             // Charger les catégories
-            const categoriesSnap = await getDocs(collection(db, "prestationCategories"));
+            const categoriesSnap = await getDocs(collection(db, "productCategories"));
             if (categoriesSnap.empty) {
                 // Si pas de catégories, créer les catégories par défaut
                 for (const cat of DEFAULT_CATEGORIES) {
-                    await addDoc(collection(db, "prestationCategories"), {
+                    await addDoc(collection(db, "productCategories"), {
                         name: cat.name,
                         icon: cat.icon
                     });
                 }
                 // Recharger
-                const newCategoriesSnap = await getDocs(collection(db, "prestationCategories"));
-                setCategories(newCategoriesSnap.docs.map(d => ({ id: d.id, ...d.data() } as PrestationCategory)));
+                const newCategoriesSnap = await getDocs(collection(db, "productCategories"));
+                setCategories(newCategoriesSnap.docs.map(d => ({ id: d.id, ...d.data() } as ProductCategory)));
             } else {
-                setCategories(categoriesSnap.docs.map(d => ({ id: d.id, ...d.data() } as PrestationCategory)));
-            }
-
-            // Charger le taux horaire
-            const rateDoc = await getDoc(doc(db, "settings", "hourlyRate"));
-            if (rateDoc.exists()) {
-                const rate = rateDoc.data().rate || 35;
-                setHourlyRate(rate);
-                setTempRate(rate);
+                setCategories(categoriesSnap.docs.map(d => ({ id: d.id, ...d.data() } as ProductCategory)));
             }
         } catch (error) {
             console.error("Erreur chargement:", error);
@@ -112,92 +102,74 @@ export default function CataloguePage() {
         }
     };
 
-    const saveHourlyRate = async () => {
-        try {
-            await setDoc(doc(db, "settings", "hourlyRate"), {
-                rate: tempRate,
-                updatedAt: new Date()
-            });
-            setHourlyRate(tempRate);
-            setIsEditingRate(false);
-        } catch (error) {
-            console.error("Erreur sauvegarde taux:", error);
-        }
-    };
-
-    const calculatePrice = (duration: number) => {
-        return (duration / 60) * hourlyRate;
-    };
-
-    const formatDuration = (minutes: number) => {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        if (hours > 0 && mins > 0) return `${hours}h${mins}`;
-        if (hours > 0) return `${hours}h`;
-        return `${mins}min`;
-    };
-
-    // PRESTATIONS
-    const handleAddPrestation = async () => {
-        if (!formData.desc || !formData.category) return;
+    // PRODUITS
+    const handleAddProduct = async () => {
+        if (!formData.name || formData.price <= 0 || !formData.category) return;
 
         try {
-            await addDoc(collection(db, "prestations"), {
-                desc: formData.desc,
-                duration: formData.duration || 30,
+            await addDoc(collection(db, "products"), {
+                name: formData.name,
+                description: formData.description,
+                price: formData.price,
                 category: formData.category,
-                createdAt: new Date()
+                unit: formData.unit
             });
             await fetchData();
             resetForm();
             setShowAddModal(false);
         } catch (error) {
-            console.error("Erreur ajout prestation:", error);
+            console.error("Erreur ajout produit:", error);
         }
     };
 
-    const handleUpdatePrestation = async () => {
-        if (!editingPrestation || !formData.desc) return;
+    const handleUpdateProduct = async () => {
+        if (!editingProduct || !formData.name || formData.price <= 0) return;
 
         try {
-            await updateDoc(doc(db, "prestations", editingPrestation.id), {
-                desc: formData.desc,
-                duration: formData.duration,
-                category: formData.category
+            await updateDoc(doc(db, "products", editingProduct.id), {
+                name: formData.name,
+                description: formData.description,
+                price: formData.price,
+                category: formData.category,
+                unit: formData.unit
             });
             await fetchData();
             resetForm();
-            setEditingPrestation(null);
+            setEditingProduct(null);
         } catch (error) {
-            console.error("Erreur mise à jour prestation:", error);
+            console.error("Erreur mise à jour produit:", error);
         }
     };
 
-    const handleDeletePrestation = async (id: string) => {
-        if (!confirm("Supprimer cette prestation ?")) return;
+    const handleDeleteProduct = async (id: string) => {
+        if (!confirm("Supprimer ce produit ?")) return;
 
         try {
-            await deleteDoc(doc(db, "prestations", id));
+            await deleteDoc(doc(db, "products", id));
             await fetchData();
         } catch (error) {
-            console.error("Erreur suppression prestation:", error);
+            console.error("Erreur suppression produit:", error);
         }
     };
 
-    const startEditingPrestation = (prestation: Prestation) => {
-        setEditingPrestation(prestation);
+    const startEditingProduct = (product: Product) => {
+        setEditingProduct(product);
         setFormData({
-            desc: prestation.desc,
-            duration: prestation.duration || 30,
-            category: prestation.category
+            name: product.name,
+            description: product.description || '',
+            price: product.price,
+            category: product.category,
+            unit: product.unit
         });
     };
 
     const resetForm = () => {
         setFormData({
-            desc: '',
-            duration: 30,
-            category: selectedCategory || ''
+            name: '',
+            description: '',
+            price: 0,
+            category: selectedCategory || '',
+            unit: 'unité'
         });
     };
 
@@ -212,7 +184,7 @@ export default function CataloguePage() {
         if (!categoryFormData.name) return;
 
         try {
-            await addDoc(collection(db, "prestationCategories"), {
+            await addDoc(collection(db, "productCategories"), {
                 name: categoryFormData.name,
                 icon: categoryFormData.icon
             });
@@ -228,7 +200,7 @@ export default function CataloguePage() {
         if (!editingCategory || !categoryFormData.name) return;
 
         try {
-            await updateDoc(doc(db, "prestationCategories", editingCategory.id), {
+            await updateDoc(doc(db, "productCategories", editingCategory.id), {
                 name: categoryFormData.name,
                 icon: categoryFormData.icon
             });
@@ -242,15 +214,15 @@ export default function CataloguePage() {
     };
 
     const handleDeleteCategory = async (id: string) => {
-        const prestationsInCategory = prestations.filter(p => p.category === id).length;
-        if (prestationsInCategory > 0) {
-            alert(`Impossible de supprimer cette catégorie car elle contient ${prestationsInCategory} prestation(s).`);
+        const productsInCategory = products.filter(p => p.category === id).length;
+        if (productsInCategory > 0) {
+            alert(`Impossible de supprimer cette catégorie car elle contient ${productsInCategory} produit(s).`);
             return;
         }
         if (!confirm("Supprimer cette catégorie ?")) return;
 
         try {
-            await deleteDoc(doc(db, "prestationCategories", id));
+            await deleteDoc(doc(db, "productCategories", id));
             if (selectedCategory === id) {
                 setSelectedCategory(null);
             }
@@ -260,7 +232,7 @@ export default function CataloguePage() {
         }
     };
 
-    const startEditingCategory = (category: PrestationCategory) => {
+    const startEditingCategory = (category: ProductCategory) => {
         setEditingCategory(category);
         setCategoryFormData({
             name: category.name,
@@ -272,7 +244,7 @@ export default function CataloguePage() {
     const resetCategoryForm = () => {
         setCategoryFormData({
             name: '',
-            icon: 'folder'
+            icon: 'package'
         });
         setEditingCategory(null);
     };
@@ -282,15 +254,16 @@ export default function CataloguePage() {
         setShowCategoryModal(true);
     };
 
-    const filteredPrestations = prestations.filter(p => {
+    const filteredProducts = products.filter(p => {
         const matchesCategory = !selectedCategory || p.category === selectedCategory;
         const matchesSearch = searchQuery === '' ||
-            p.desc.toLowerCase().includes(searchQuery.toLowerCase());
+            p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
         return matchesCategory && matchesSearch;
     });
 
     const selectedCategoryData = categories.find(c => c.id === selectedCategory);
-    const CategoryIcon = selectedCategoryData ? getIconComponent(selectedCategoryData.icon) : BookOpen;
+    const CategoryIcon = selectedCategoryData ? getIconComponent(selectedCategoryData.icon) : Package;
 
     return (
         <div className="h-[91.5vh] w-full flex">
@@ -307,52 +280,8 @@ export default function CataloguePage() {
                         La Clé Provençale
                     </span>
                     <h1 className="text-white text-lg font-serif uppercase tracking-widest">
-                        Catalogue <span className="text-[#B88A44]">Prestations</span>
+                        Catalogue <span className="text-[#B88A44]">Produits</span>
                     </h1>
-                </div>
-
-                {/* Taux horaire */}
-                <div className="mb-4 p-3 bg-white/5 rounded-sm border border-white/10">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-[9px] uppercase tracking-wider text-[#B88A44] font-bold">Taux horaire</span>
-                        {!isEditingRate && (
-                            <button
-                                onClick={() => setIsEditingRate(true)}
-                                className="text-white/50 hover:text-white transition-colors"
-                            >
-                                <Edit2 size={12} />
-                            </button>
-                        )}
-                    </div>
-                    {isEditingRate ? (
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="number"
-                                step="0.5"
-                                value={tempRate}
-                                onChange={(e) => setTempRate(parseFloat(e.target.value) || 0)}
-                                className="flex-1 bg-white/10 text-white p-2 rounded-sm text-sm outline-none border border-[#B88A44]"
-                                autoFocus
-                            />
-                            <button
-                                onClick={saveHourlyRate}
-                                className="p-2 bg-green-500/20 text-green-400 rounded-sm hover:bg-green-500/30 transition-all"
-                            >
-                                <Save size={14} />
-                            </button>
-                            <button
-                                onClick={() => { setIsEditingRate(false); setTempRate(hourlyRate); }}
-                                className="p-2 bg-white/10 text-white/50 rounded-sm hover:bg-white/20 transition-all"
-                            >
-                                <X size={14} />
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2">
-                            <DollarSign size={18} className="text-[#B88A44]" />
-                            <span className="text-white text-xl font-bold">{hourlyRate.toFixed(2)} €/h</span>
-                        </div>
-                    )}
                 </div>
 
                 {/* Bouton Nouvelle Catégorie */}
@@ -376,13 +305,13 @@ export default function CataloguePage() {
                         }`}
                     >
                         <div className="flex items-center gap-3">
-                            <BookOpen size={18} className={selectedCategory === null ? 'text-white' : 'text-[#B88A44]'} />
+                            <Package size={18} className={selectedCategory === null ? 'text-white' : 'text-[#B88A44]'} />
                             <div>
                                 <span className={`text-[10px] uppercase font-bold tracking-wider block ${selectedCategory === null ? 'text-white' : 'text-white/80'}`}>
-                                    Toutes les prestations
+                                    Tous les produits
                                 </span>
                                 <span className={`text-[9px] ${selectedCategory === null ? 'text-white/70' : 'text-[#B88A44]/70'}`}>
-                                    {prestations.length} prestation(s)
+                                    {products.length} produit(s)
                                 </span>
                             </div>
                         </div>
@@ -390,7 +319,7 @@ export default function CataloguePage() {
 
                     {categories.map((cat) => {
                         const Icon = getIconComponent(cat.icon);
-                        const count = prestations.filter(p => p.category === cat.id).length;
+                        const count = products.filter(p => p.category === cat.id).length;
                         const isSelected = selectedCategory === cat.id;
                         return (
                             <div key={cat.id} className="relative group">
@@ -409,7 +338,7 @@ export default function CataloguePage() {
                                                 {cat.name}
                                             </span>
                                             <span className={`text-[9px] ${isSelected ? 'text-white/70' : 'text-[#B88A44]/70'}`}>
-                                                {count} prestation(s)
+                                                {count} produit(s)
                                             </span>
                                         </div>
                                     </div>
@@ -436,7 +365,7 @@ export default function CataloguePage() {
 
                 <div className="mt-4 pt-4 border-t border-white/10">
                     <div className="text-[8px] text-white/30 uppercase tracking-wider text-center">
-                        {categories.length} catégorie(s) • {prestations.length} prestation(s)
+                        {categories.length} catégorie(s) • {products.length} produit(s)
                     </div>
                 </div>
             </div>
@@ -451,10 +380,10 @@ export default function CataloguePage() {
                         </div>
                         <div>
                             <h2 className="text-xl font-serif uppercase tracking-widest text-[#1A1A1A]">
-                                {selectedCategoryData?.name || 'Toutes les prestations'}
+                                {selectedCategoryData?.name || 'Tous les produits'}
                             </h2>
                             <p className="text-[10px] text-gray-500 uppercase tracking-wider">
-                                {filteredPrestations.length} prestation(s) • {hourlyRate.toFixed(2)} €/h
+                                {filteredProducts.length} produit(s)
                             </p>
                         </div>
                     </div>
@@ -474,50 +403,49 @@ export default function CataloguePage() {
                             onClick={openAddModal}
                             className="bg-[#B88A44] text-white px-4 py-2 text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 hover:bg-[#A07A34] transition-all rounded-sm"
                         >
-                            <Plus size={16} /> Ajouter Prestation
+                            <Plus size={16} /> Ajouter Produit
                         </button>
                     </div>
                 </div>
 
-                {/* Liste des Prestations */}
+                {/* Liste des Produits */}
                 <div className="flex-1 overflow-y-auto">
                     {loading ? (
                         <div className="text-center py-20 text-gray-400">Chargement...</div>
-                    ) : filteredPrestations.length === 0 ? (
+                    ) : filteredProducts.length === 0 ? (
                         <div className="text-center py-20">
-                            <BookOpen size={48} className="mx-auto text-gray-300 mb-4" />
-                            <p className="text-gray-400 italic">Aucune prestation {selectedCategory ? 'dans cette catégorie' : ''}</p>
+                            <Package size={48} className="mx-auto text-gray-300 mb-4" />
+                            <p className="text-gray-400 italic">Aucun produit {selectedCategory ? 'dans cette catégorie' : ''}</p>
                             <button
                                 onClick={openAddModal}
                                 className="mt-4 text-[#B88A44] text-sm underline hover:no-underline"
                             >
-                                Ajouter une prestation
+                                Ajouter un produit
                             </button>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {filteredPrestations.map((prestation) => {
-                                const prestationCategory = categories.find(c => c.id === prestation.category);
-                                const price = calculatePrice(prestation.duration || 30);
+                            {filteredProducts.map((product) => {
+                                const productCategory = categories.find(c => c.id === product.category);
                                 return (
                                     <div
-                                        key={prestation.id}
+                                        key={product.id}
                                         className="bg-white p-4 rounded-sm border border-[#B88A44]/20 hover:border-[#B88A44]/50 transition-all group"
                                     >
                                         <div className="flex items-start justify-between mb-3">
                                             <div className="flex items-center gap-2">
-                                                <Clock size={16} className="text-[#B88A44]" />
-                                                <h3 className="font-serif font-bold text-[#1A1A1A]">{prestation.desc}</h3>
+                                                <Package size={16} className="text-[#B88A44]" />
+                                                <h3 className="font-serif font-bold text-[#1A1A1A]">{product.name}</h3>
                                             </div>
                                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
-                                                    onClick={() => startEditingPrestation(prestation)}
+                                                    onClick={() => startEditingProduct(product)}
                                                     className="p-1 text-gray-400 hover:text-[#B88A44] transition-colors"
                                                 >
                                                     <Edit2 size={14} />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDeletePrestation(prestation.id)}
+                                                    onClick={() => handleDeleteProduct(product.id)}
                                                     className="p-1 text-gray-400 hover:text-red-500 transition-colors"
                                                 >
                                                     <Trash2 size={14} />
@@ -525,23 +453,18 @@ export default function CataloguePage() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#F7F5F0] text-[#1A1A1A] text-[10px] font-bold rounded-sm">
-                                                <Clock size={12} className="text-[#B88A44]" />
-                                                {formatDuration(prestation.duration || 30)}
-                                            </span>
-                                            {prestationCategory && (
-                                                <span className="text-[9px] text-[#B88A44] uppercase font-bold">
-                                                    {prestationCategory.name}
-                                                </span>
-                                            )}
-                                        </div>
+                                        {product.description && (
+                                            <p className="text-[11px] text-gray-500 mb-3 line-clamp-2">{product.description}</p>
+                                        )}
 
                                         <div className="flex items-center justify-between pt-3 border-t border-[#B88A44]/10">
-                                            <span className="text-[9px] text-gray-400">
-                                                {prestation.duration || 30}min × {hourlyRate}€/h
-                                            </span>
-                                            <span className="text-lg font-bold text-[#B88A44]">{price.toFixed(2)} €</span>
+                                            <div>
+                                                <span className="text-[9px] text-gray-400 uppercase block">{product.unit}</span>
+                                                {productCategory && (
+                                                    <span className="text-[8px] text-[#B88A44] uppercase">{productCategory.name}</span>
+                                                )}
+                                            </div>
+                                            <span className="text-lg font-bold text-[#B88A44]">{product.price.toFixed(2)} €</span>
                                         </div>
                                     </div>
                                 );
@@ -551,18 +474,18 @@ export default function CataloguePage() {
                 </div>
             </div>
 
-            {/* Modal Ajout/Edition Prestation */}
-            {(showAddModal || editingPrestation) && (
+            {/* Modal Ajout/Edition Produit */}
+            {(showAddModal || editingProduct) && (
                 <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-sm w-full max-w-md shadow-2xl">
                         <div className="bg-gradient-to-r from-[#B88A44] to-[#A07A34] p-4 flex items-center justify-between">
                             <h3 className="text-white font-bold uppercase tracking-widest text-sm">
-                                {editingPrestation ? 'Modifier la Prestation' : 'Nouvelle Prestation'}
+                                {editingProduct ? 'Modifier le Produit' : 'Nouveau Produit'}
                             </h3>
                             <button
                                 onClick={() => {
                                     setShowAddModal(false);
-                                    setEditingPrestation(null);
+                                    setEditingProduct(null);
                                     resetForm();
                                 }}
                                 className="text-white hover:bg-white/20 p-1 rounded-full transition-all"
@@ -574,61 +497,82 @@ export default function CataloguePage() {
                         <div className="p-6 space-y-4">
                             <div>
                                 <label className="text-[10px] uppercase font-bold text-[#B88A44] mb-1 block tracking-widest">
-                                    Nom de la prestation *
+                                    Nom du produit *
                                 </label>
                                 <input
                                     type="text"
-                                    value={formData.desc}
-                                    onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     className="w-full p-3 text-sm border border-[#B88A44]/20 rounded-sm outline-none focus:border-[#B88A44]"
-                                    placeholder="Ex: Ménage fin de séjour"
+                                    placeholder="Ex: Produit vaisselle écologique"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-[10px] uppercase font-bold text-[#B88A44] mb-1 block tracking-widest">
+                                    Description
+                                </label>
+                                <textarea
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    className="w-full p-3 text-sm border border-[#B88A44]/20 rounded-sm outline-none focus:border-[#B88A44] resize-none"
+                                    rows={2}
+                                    placeholder="Description optionnelle..."
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-[10px] uppercase font-bold text-[#B88A44] mb-1 block tracking-widest">
-                                        Durée (minutes) *
+                                        Prix (€) *
                                     </label>
                                     <div className="relative">
                                         <input
                                             type="number"
-                                            step="15"
-                                            min="15"
-                                            value={formData.duration}
-                                            onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 30 })}
-                                            className="w-full p-3 text-sm border border-[#B88A44]/20 rounded-sm outline-none focus:border-[#B88A44] pr-12"
+                                            step="0.01"
+                                            min="0"
+                                            value={formData.price}
+                                            onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                                            className="w-full p-3 text-sm border border-[#B88A44]/20 rounded-sm outline-none focus:border-[#B88A44] pr-8"
                                         />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">min</span>
+                                        <Euro size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                     </div>
                                 </div>
 
                                 <div>
                                     <label className="text-[10px] uppercase font-bold text-[#B88A44] mb-1 block tracking-widest">
-                                        Catégorie *
+                                        Unité
                                     </label>
                                     <select
-                                        value={formData.category}
-                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                        value={formData.unit}
+                                        onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
                                         className="w-full p-3 text-sm border border-[#B88A44]/20 rounded-sm outline-none focus:border-[#B88A44]"
                                     >
-                                        <option value="">Sélectionner...</option>
-                                        {categories.map((cat) => (
-                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                        ))}
+                                        <option value="unité">Unité</option>
+                                        <option value="bouteille">Bouteille</option>
+                                        <option value="litre">Litre</option>
+                                        <option value="kg">Kilogramme</option>
+                                        <option value="lot">Lot</option>
+                                        <option value="boîte">Boîte</option>
+                                        <option value="pack">Pack</option>
                                     </select>
                                 </div>
                             </div>
 
-                            {/* Aperçu du prix */}
-                            <div className="p-4 bg-[#B88A44]/10 rounded-sm border-l-4 border-[#B88A44]">
-                                <p className="text-[9px] uppercase tracking-widest text-[#B88A44] font-bold mb-1">Prix estimé</p>
-                                <p className="text-2xl font-bold text-[#1A1A1A]">
-                                    {calculatePrice(formData.duration).toFixed(2)} €
-                                </p>
-                                <p className="text-[9px] text-gray-500 mt-1">
-                                    {formData.duration}min × {hourlyRate}€/h
-                                </p>
+                            <div>
+                                <label className="text-[10px] uppercase font-bold text-[#B88A44] mb-1 block tracking-widest">
+                                    Catégorie *
+                                </label>
+                                <select
+                                    value={formData.category}
+                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                    className="w-full p-3 text-sm border border-[#B88A44]/20 rounded-sm outline-none focus:border-[#B88A44]"
+                                >
+                                    <option value="">Sélectionner une catégorie...</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -636,7 +580,7 @@ export default function CataloguePage() {
                             <button
                                 onClick={() => {
                                     setShowAddModal(false);
-                                    setEditingPrestation(null);
+                                    setEditingProduct(null);
                                     resetForm();
                                 }}
                                 className="px-4 py-2 text-[10px] uppercase font-bold tracking-widest text-gray-600 hover:text-gray-800 transition-all"
@@ -644,11 +588,11 @@ export default function CataloguePage() {
                                 Annuler
                             </button>
                             <button
-                                onClick={editingPrestation ? handleUpdatePrestation : handleAddPrestation}
-                                disabled={!formData.desc || !formData.category}
+                                onClick={editingProduct ? handleUpdateProduct : handleAddProduct}
+                                disabled={!formData.name || formData.price <= 0 || !formData.category}
                                 className="bg-[#B88A44] text-white px-6 py-2 text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 hover:bg-[#A07A34] transition-all rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <Save size={14} /> {editingPrestation ? 'Mettre à jour' : 'Enregistrer'}
+                                <Save size={14} /> {editingProduct ? 'Mettre à jour' : 'Enregistrer'}
                             </button>
                         </div>
                     </div>
@@ -684,7 +628,7 @@ export default function CataloguePage() {
                                     value={categoryFormData.name}
                                     onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
                                     className="w-full p-3 text-sm border border-[#B88A44]/20 rounded-sm outline-none focus:border-[#B88A44]"
-                                    placeholder="Ex: Repassage"
+                                    placeholder="Ex: Produits Bio"
                                 />
                             </div>
 

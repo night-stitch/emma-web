@@ -9,7 +9,7 @@ import {
 import Link from 'next/link';
 import {
     Plus, User, MapPin, Phone, Trash2, Loader2,
-    Search, MessageSquare, Mail, Calendar, X, Send, Clock
+    Search, MessageSquare, Mail, Calendar, X, Send, Clock, FileText
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -124,6 +124,9 @@ export default function AdminDashboard() {
                         <button onClick={() => setIsEventModalOpen(true)} className="flex items-center justify-center gap-2 border border-[#B88A44] text-[#B88A44] px-6 py-3 md:px-8 md:py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#B88A44] hover:text-white transition-all shadow-sm">
                             <Calendar size={14} /> Planifier
                         </button>
+                        <Link href="/admin/facturation" className="flex items-center justify-center gap-2 bg-[#B88A44] text-white px-6 py-3 md:px-8 md:py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#A07A34] transition-all shadow-lg">
+                            <FileText size={14} /> Facturation
+                        </Link>
                         <Link href="/admin/nouveau-client" className="flex items-center justify-center gap-2 bg-[#1A1A1A] text-white px-6 py-3 md:px-8 md:py-4 text-[10px] uppercase tracking-[0.2em] hover:bg-[#B88A44] transition-all shadow-lg text-center">
                             <Plus size={14} /> Client
                         </Link>
