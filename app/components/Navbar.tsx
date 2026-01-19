@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Lock, UserPlus, LayoutDashboard, MessageSquare } from 'lucide-react';
+import {Lock, UserPlus, LayoutDashboard, MessageSquare, FileText} from 'lucide-react';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -72,6 +72,9 @@ export default function Navbar() {
                             </Link>
                             <Link href="/admin/nouveau-client" className="flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:opacity-70 transition-opacity">
                                 <UserPlus size={14} /> Nouveau
+                            </Link>
+                            <Link href="/admin/facturation" className="flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:opacity-70 transition-opacity">
+                                <FileText size={14} /> Facturation
                             </Link>
                         </div>
                     )}

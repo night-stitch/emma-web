@@ -4,11 +4,12 @@ import React from 'react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="min-h-screen pt-20">
-            <main className="w-full min-h-screen">
-                <div className="p-4 md:p-12">
-                    {children}
-                </div>
+        /* h-screen + flex-col : On verrouille la hauteur totale.
+           Le contenu ne pourra jamais dépasser la taille de l'écran.
+        */
+        <div className="flex flex-col">
+            <main className="flex-1 overflow-hidden relative pt-20">
+                {children}
             </main>
         </div>
     );
