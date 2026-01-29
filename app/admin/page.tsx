@@ -9,7 +9,7 @@ import {
 import Link from 'next/link';
 import {
     Plus, User, MapPin, Phone, Trash2, Loader2,
-    Search, MessageSquare, Mail, Calendar, X, Send, Clock, FileText
+    Search, MessageSquare, Mail, Calendar, X, Send, Clock, FileText, ArrowLeft
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -114,6 +114,9 @@ export default function AdminDashboard() {
                 {/* EN-TÊTE - Stack vertical sur mobile, horizontal sur Desktop */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 md:mb-12">
                     <div className="w-full md:w-auto">
+                        <Link href="/" className="inline-flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold mb-3 hover:text-[#1A1A1A] transition-colors">
+                            <ArrowLeft size={14} /> Retour au site
+                        </Link>
                         <span className="text-[#B88A44] text-[10px] uppercase tracking-[0.3em] font-bold block mb-1">Administration</span>
                         <h1 className="text-[#1A1A1A] text-2xl md:text-4xl font-serif uppercase tracking-widest leading-tight">
                             Tableau de <span className="text-[#B88A44]">Bord</span>
@@ -127,7 +130,7 @@ export default function AdminDashboard() {
                         <Link href="/admin/facturation" className="flex items-center justify-center gap-2 bg-[#B88A44] text-white px-6 py-3 md:px-8 md:py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#A07A34] transition-all shadow-lg">
                             <FileText size={14} /> Facturation
                         </Link>
-                        <Link href="/admin/nouveau-client" className="flex items-center justify-center gap-2 bg-[#1A1A1A] text-white px-6 py-3 md:px-8 md:py-4 text-[10px] uppercase tracking-[0.2em] hover:bg-[#B88A44] transition-all shadow-lg text-center">
+                        <Link href="/admin/client" className="flex items-center justify-center gap-2 bg-[#1A1A1A] text-white px-6 py-3 md:px-8 md:py-4 text-[10px] uppercase tracking-[0.2em] hover:bg-[#B88A44] transition-all shadow-lg text-center">
                             <Plus size={14} /> Client
                         </Link>
                     </div>
@@ -157,7 +160,7 @@ export default function AdminDashboard() {
                                                 <p className="text-[#1A1A1A]/50 italic flex items-center gap-1"><Clock size={10}/> {m.startTime} - {m.endTime}</p>
                                                 <p className="text-[#1A1A1A]/50 italic truncate flex items-center gap-1"><MapPin size={10}/> {m.clientName}</p>
                                             </div>
-                                            <button onClick={async () => { if(confirm("Supprimer ?")) { await deleteDoc(doc(db, "missions", m.id)); window.location.reload(); }}} className="text-red-300 hover:text-red-600 p-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity"><Trash2 size={14} /></button>
+                                            <button onClick={async () => { if(confirm("Supprimer ?")) { await deleteDoc(doc(db, "missions", m.id)); window.location.reload(); }}} className="text-red-300 hover:text-red-600 p-1 xl:opacity-0 xl:group-hover:opacity-100 transition-opacity"><Trash2 size={14} /></button>
                                         </div>
                                     ))
                                 )}

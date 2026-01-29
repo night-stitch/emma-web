@@ -36,8 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
         </main>
 
-        {/* FOOTER : Masqué sur forfaits et éventuellement admin selon vos préférences */}
-        {!isAdminPage ? (
+        {/* FOOTER : Masqué sur forfaits et admin */}
+        {!isAdminPage && !isForfaitPage ? (
             <footer className="snap-start relative z-20">
                 <Footer />
             </footer>

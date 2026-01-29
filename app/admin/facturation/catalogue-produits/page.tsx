@@ -5,9 +5,11 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import {
     Package, Plus, Trash2, Edit2, Save, X, Wine, Sparkles, ShoppingBag,
-    ArrowLeft, Search, Euro, FolderPlus, Folder, Tag
+    ArrowLeft, Search, Euro, FolderPlus, Folder, Tag, LayoutGrid, List
 } from 'lucide-react';
 import Link from 'next/link';
+
+type MobileView = 'categories' | 'list';
 
 interface Product {
     id: string;
@@ -54,6 +56,7 @@ export default function CatalogueProduits() {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [editingCategory, setEditingCategory] = useState<ProductCategory | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [mobileView, setMobileView] = useState<MobileView>('list');
 
     const [formData, setFormData] = useState({
         name: '',
@@ -266,9 +269,36 @@ export default function CatalogueProduits() {
     const CategoryIcon = selectedCategoryData ? getIconComponent(selectedCategoryData.icon) : Package;
 
     return (
-        <div className="h-[91.5vh] w-full flex">
+        <div className="h-[91.5vh] w-full flex flex-col lg:flex-row">
+            {/* NAVIGATION MOBILE - Bottom tabs */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#B88A44]/20 z-50 flex shadow-lg">
+                <button
+                    onClick={() => setMobileView('categories')}
+                    className={`flex-1 py-3 flex flex-col items-center gap-1 transition-all ${
+                        mobileView === 'categories' ? 'bg-[#B88A44]/10 text-[#B88A44]' : 'text-gray-500'
+                    }`}
+                >
+                    <LayoutGrid size={20} />
+                    <span className="text-[9px] uppercase font-bold tracking-wider">Catégories</span>
+                </button>
+                <button
+                    onClick={() => setMobileView('list')}
+                    className={`flex-1 py-3 flex flex-col items-center gap-1 transition-all relative ${
+                        mobileView === 'list' ? 'bg-[#B88A44]/10 text-[#B88A44]' : 'text-gray-500'
+                    }`}
+                >
+                    <List size={20} />
+                    <span className="text-[9px] uppercase font-bold tracking-wider">Produits</span>
+                    {products.length > 0 && (
+                        <span className="absolute top-1 right-1/4 bg-[#B88A44] text-white text-[8px] px-1.5 rounded-full">{products.length}</span>
+                    )}
+                </button>
+            </div>
+
             {/* Sidebar Catégories */}
-            <div className="w-[220px] h-full flex flex-col bg-gradient-to-b from-[#1A1A1A] to-[#2A2A2A] p-4 flex-shrink-0">
+            <div className={`w-full lg:w-[220px] h-[calc(100%-60px)] lg:h-full flex flex-col bg-gradient-to-b from-[#1A1A1A] to-[#2A2A2A] p-4 flex-shrink-0 ${
+                mobileView === 'categories' ? 'block' : 'hidden lg:flex'
+            }`}>
                 <Link href="/admin/facturation">
                     <button className="w-full mb-6 flex items-center gap-2 text-white/70 hover:text-white text-[10px] uppercase tracking-widest transition-all">
                         <ArrowLeft size={14} /> Retour Facturation
@@ -371,39 +401,49 @@ export default function CatalogueProduits() {
             </div>
 
             {/* Contenu Principal */}
-            <div className="flex-1 h-full flex flex-col p-6 overflow-hidden">
+            <div className={`flex-1 w-full h-[calc(100%-60px)] lg:h-full flex flex-col p-4 lg:p-6 overflow-hidden ${
+                mobileView === 'list' ? 'block' : 'hidden lg:flex'
+            }`}>
+                {/* Bouton retour mobile */}
+                <button
+                    onClick={() => setMobileView('categories')}
+                    className="lg:hidden flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold mb-4 hover:text-[#1A1A1A] transition-colors"
+                >
+                    <ArrowLeft size={14} /> Retour aux catégories
+                </button>
+
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-[#B88A44] rounded-sm flex items-center justify-center">
-                            <CategoryIcon size={24} className="text-white" />
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4 lg:mb-6 gap-4">
+                    <div className="flex items-center gap-3 lg:gap-4">
+                        <div className="w-10 h-10 lg:w-12 lg:h-12 bg-[#B88A44] rounded-sm flex items-center justify-center flex-shrink-0">
+                            <CategoryIcon size={20} className="lg:w-6 lg:h-6 text-white" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-serif uppercase tracking-widest text-[#1A1A1A]">
+                            <h2 className="text-base lg:text-xl font-serif uppercase tracking-widest text-[#1A1A1A]">
                                 {selectedCategoryData?.name || 'Tous les produits'}
                             </h2>
-                            <p className="text-[10px] text-gray-500 uppercase tracking-wider">
+                            <p className="text-[9px] lg:text-[10px] text-gray-500 uppercase tracking-wider">
                                 {filteredProducts.length} produit(s)
                             </p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <div className="relative">
+                    <div className="flex items-center gap-2 lg:gap-3">
+                        <div className="relative flex-1 lg:flex-none">
                             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input
                                 type="text"
                                 placeholder="Rechercher..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2 text-sm bg-white border border-[#B88A44]/20 rounded-sm outline-none focus:border-[#B88A44] w-[200px]"
+                                className="w-full lg:w-[200px] pl-10 pr-4 py-2 text-sm bg-white border border-[#B88A44]/20 rounded-sm outline-none focus:border-[#B88A44]"
                             />
                         </div>
                         <button
                             onClick={openAddModal}
-                            className="bg-[#B88A44] text-white px-4 py-2 text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 hover:bg-[#A07A34] transition-all rounded-sm"
+                            className="bg-[#B88A44] text-white px-3 lg:px-4 py-2 text-[9px] lg:text-[10px] uppercase font-bold tracking-widest flex items-center gap-2 hover:bg-[#A07A34] transition-all rounded-sm whitespace-nowrap"
                         >
-                            <Plus size={16} /> Ajouter Produit
+                            <Plus size={16} /> <span className="hidden sm:inline">Ajouter</span> <span className="sm:hidden">+</span>
                         </button>
                     </div>
                 </div>
@@ -424,7 +464,7 @@ export default function CatalogueProduits() {
                             </button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 pb-4">
                             {filteredProducts.map((product) => {
                                 const productCategory = categories.find(c => c.id === product.category);
                                 return (
@@ -433,22 +473,22 @@ export default function CatalogueProduits() {
                                         className="bg-white p-4 rounded-sm border border-[#B88A44]/20 hover:border-[#B88A44]/50 transition-all group"
                                     >
                                         <div className="flex items-start justify-between mb-3">
-                                            <div className="flex items-center gap-2">
-                                                <Package size={16} className="text-[#B88A44]" />
-                                                <h3 className="font-serif font-bold text-[#1A1A1A]">{product.name}</h3>
+                                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                <Package size={16} className="text-[#B88A44] flex-shrink-0" />
+                                                <h3 className="font-serif font-bold text-[#1A1A1A] text-sm lg:text-base truncate">{product.name}</h3>
                                             </div>
-                                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center gap-1 opacity-100 xl:opacity-0 xl:group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2">
                                                 <button
                                                     onClick={() => startEditingProduct(product)}
-                                                    className="p-1 text-gray-400 hover:text-[#B88A44] transition-colors"
+                                                    className="p-1.5 lg:p-1 text-gray-400 hover:text-[#B88A44] transition-colors"
                                                 >
-                                                    <Edit2 size={14} />
+                                                    <Edit2 size={16} className="lg:w-3.5 lg:h-3.5" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteProduct(product.id)}
-                                                    className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                                                    className="p-1.5 lg:p-1 text-gray-400 hover:text-red-500 transition-colors"
                                                 >
-                                                    <Trash2 size={14} />
+                                                    <Trash2 size={16} className="lg:w-3.5 lg:h-3.5" />
                                                 </button>
                                             </div>
                                         </div>

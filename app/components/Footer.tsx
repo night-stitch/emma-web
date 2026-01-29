@@ -22,8 +22,8 @@ export default function Footer() {
                         </p>
                         {/* Réseaux Sociaux */}
                         <div className="flex gap-4">
-                            <SocialIcon icon={<Instagram size={18} />} href="#" />
-                            <SocialIcon icon={<Facebook size={18} />} href="#" />
+                            <SocialIcon icon={<Instagram size={18} />} href="https://www.instagram.com/la_cle_provencale?igsh=MTB2bXo2eG55bTFleQ%3D%3D&utm_source=qr" />
+                            <SocialIcon icon={<Facebook size={18} />} href="https://www.facebook.com/share/1MTv9X7Hrb/?mibextid=wwXIfr" />
                         </div>
                     </div>
 
@@ -34,24 +34,7 @@ export default function Footer() {
                         </h4>
                         <ul className="space-y-4">
                             <FooterLink href="/" label="Accueil" />
-                            <FooterLink href="/#services" label="Nos Services" />
-                            <FooterLink href="/forfaits" label="Tarifs & Forfaits" />
-                            <FooterLink href="/a-propos" label="Notre Histoire" />
-                        </ul>
-                    </div>
-
-                    {/* 3. LÉGAL */}
-                    <div>
-                        <h4 className="text-[#B88A44] text-[10px] font-bold uppercase tracking-[0.3em] mb-6">
-                            Informations
-                        </h4>
-                        <ul className="space-y-4">
-                            <FooterLink href="/mentions-legales" label="Mentions Légales" />
-                            <FooterLink href="/cgv" label="CGV" />
-                            <FooterLink href="/confidentialite" label="Confidentialité" />
-                            <li className="text-[#1A1A1A]/40 text-[10px] uppercase tracking-widest">
-                                SIRET : 000 000 000
-                            </li>
+                            <FooterLink href="/forfaits" label="Nos Forfaits" />
                         </ul>
                     </div>
 
@@ -61,8 +44,8 @@ export default function Footer() {
                             Nous Contacter
                         </h4>
                         <ul className="space-y-6">
-                            <ContactItem icon={<Phone size={14} />} text="06 00 00 00 00" />
-                            <ContactItem icon={<Mail size={14} />} text="contact@cle-provencale.com" />
+                            <ContactItem icon={<Phone size={14} />} text="06 68 60 40 63" />
+                            <ContactItem icon={<Mail size={14} />} text="conciergerie@lacleprovencale.fr" />
                             <ContactItem icon={<MapPin size={14} />} text="Gordes, Luberon, Provence" />
                         </ul>
                     </div>

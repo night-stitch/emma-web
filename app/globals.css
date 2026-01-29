@@ -7,31 +7,31 @@
 
 @layer base {
     body {
-        /* Effet de lumière diffuse prestige */
+        /* Effet de lumière diffuse prestige - simplifié pour la performance */
         background-image:
-                radial-gradient(at 0% 0%, rgba(184, 138, 68, 0.08) 0, transparent 40%),
-                radial-gradient(at 100% 100%, rgba(184, 138, 68, 0.05) 0, transparent 40%);
-        background-attachment: fixed;
+                radial-gradient(at 0% 0%, rgba(184, 138, 68, 0.06) 0, transparent 35%),
+                radial-gradient(at 100% 100%, rgba(184, 138, 68, 0.04) 0, transparent 35%);
+        background-attachment: scroll; /* scroll au lieu de fixed = plus fluide */
         min-height: 100vh;
     }
 
-    /* Le grain de pierre douce */
     body::before {
         content: "";
         position: fixed;
         inset: 0;
-        z-index: -1; /* TRÈS IMPORTANT : Derrière tout */
+        z-index: -1;
         pointer-events: none;
-        opacity: 0.15;
+        opacity: 0.1;
         mix-blend-mode: multiply;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
     }
+
 }
 
 html {
     scroll-behavior: smooth;
-    /* On active le snap pour tout le monde, mais de manière intelligente */
-    scroll-snap-type: y mandatory;
+    /* Scroll snap "proximity" = plus doux que "mandatory" */
+    scroll-snap-type: y proximity;
     height: 100%;
 }
 
@@ -45,13 +45,134 @@ html {
 ::-webkit-scrollbar { display: none; }
 html, body { scrollbar-width: none; -ms-overflow-style: none; }
 
-/* --- NOUVEAU : CIBLEZ VOS SECTIONS --- */
-/* Ajoutez cette classe à vos <section> dans page.tsx pour un arrêt net */
+/* Utilitaire pour cacher la scrollbar tout en permettant le scroll */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* --- SCROLL SNAP FLUIDE --- */
 .snap-section {
     scroll-snap-align: start;
-    scroll-snap-stop: always; /* FORCE l'arrêt sur chaque section, empêche de sauter trop vite */
+    scroll-snap-stop: normal; /* Permet de passer plusieurs sections d'un coup */
 }
 
 .snap-container {
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: y proximity;
+    scroll-behavior: smooth;
+}
+
+/* Container de scroll avec snap fluide */
+[class*="snap-y"] {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+}
+
+/* Sections avec transitions fluides */
+section {
+    /* Permet des transitions plus douces lors du scroll */
+    transform: translateZ(0);
+    will-change: transform;
+    /* Transition douce pour les changements de visibilité */
+    transition: opacity 0.5s ease-out;
+}
+
+/* ========================================
+   ANIMATIONS OPTIMISÉES POUR LA FLUIDITÉ
+   ======================================== */
+
+/* Animation fade-up performante (utilise transform + opacity uniquement) */
+@keyframes fade-up {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-up {
+    animation: fade-up 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Variantes avec délais */
+.animate-fade-up-delay-1 {
+    opacity: 0;
+    animation: fade-up 1s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+}
+
+.animate-fade-up-delay-2 {
+    opacity: 0;
+    animation: fade-up 1s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+}
+
+.animate-fade-up-delay-3 {
+    opacity: 0;
+    animation: fade-up 1s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
+}
+
+/* Animation scale légère pour les hovers */
+@keyframes scale-in {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.05);
+    }
+}
+
+/* Forcer l'accélération GPU sur les éléments animés */
+.gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Optimisation des images avec hover */
+.optimized-image-hover {
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+.optimized-image-hover:hover {
+    transform: scale(1.05);
+}
+
+/* Transitions optimisées - évite transition-all */
+.transition-colors-optimized {
+    transition-property: color, background-color, border-color;
+    transition-duration: 300ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.transition-transform-optimized {
+    transition-property: transform;
+    transition-duration: 500ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+/* Optimisation du filtre grayscale - désactivé au repos pour économiser GPU */
+.grayscale-optimized {
+    filter: grayscale(1);
+    transition: filter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: filter;
+}
+
+.grayscale-optimized:hover {
+    filter: grayscale(0);
+}
+
+/* Réduction du motion pour les utilisateurs qui le préfèrent */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

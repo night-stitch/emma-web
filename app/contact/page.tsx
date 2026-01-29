@@ -1,15 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Phone, Mail, MapPin, ArrowRight, Loader2, CheckCircle, XCircle, X } from 'lucide-react';
+import { Phone, Mail, MapPin, ArrowRight, Loader2, CheckCircle, XCircle, X, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import emailjs from '@emailjs/browser';
+// L'import d'EmailJS a été supprimé
 
 export default function ContactPage() {
     const [loading, setLoading] = useState(false);
 
-    // NOUVEAU : État pour la notification personnalisée
+    // État pour la notification personnalisée
     const [notification, setNotification] = useState({
         show: false,
         message: '',
@@ -43,33 +44,37 @@ export default function ContactPage() {
         setLoading(true);
 
         try {
+            // 1. Sauvegarde dans Firestore (Backup de sécurité)
             await addDoc(collection(db, "messages"), {
                 ...formData,
                 createdAt: serverTimestamp(),
             });
 
-            await emailjs.send(
-                'service_7aao02b',
-                'template_7kuno1e',
-                {
-                    from_name: formData.name,
-                    from_email: formData.email,
-                    phone: formData.phone,
-                    subject: formData.subject,
-                    message: formData.message,
+            // 2. Envoi de l'email via Cloud Function pour notifier l'admin
+            const response = await fetch('https://us-central1-lacleprovencale-c1c69.cloudfunctions.net/notifyNewContact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-                'w80kZ6WXyUSDiCnpQ'
-            );
+                body: JSON.stringify(formData),
+            });
 
-            // REMPLACEMENT DE L'ALERT :
+            if (!response.ok) {
+                throw new Error("Erreur serveur lors de l'envoi");
+            }
+
+            // Notification de succès
             setNotification({
                 show: true,
                 message: "Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.",
                 type: 'success'
             });
 
+            // Reset du formulaire
             setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+
         } catch (error) {
+            console.error("Erreur envoi:", error);
             setNotification({
                 show: true,
                 message: "Une erreur est survenue lors de l'envoi. Veuillez vérifier votre connexion.",
@@ -81,6 +86,13 @@ export default function ContactPage() {
 
     return (
         <div className="min-h-screen pt-20 relative">
+            {/* Bouton Retour */}
+            <Link
+                href="/"
+                className="fixed top-24 left-4 z-50 flex items-center gap-2 bg-white/90 backdrop-blur-sm text-[#1A1A1A] px-4 py-2 rounded-full shadow-lg hover:bg-[#B88A44] hover:text-white transition-all text-[10px] uppercase tracking-widest font-bold"
+            >
+                <ArrowLeft size={14} /> Retour
+            </Link>
 
             {/* --- COMPOSANT NOTIFICATION PERSONNALISÉE --- */}
             {notification.show && (
@@ -112,7 +124,6 @@ export default function ContactPage() {
             )}
 
             <section id="contact-main" className="min-h-[85vh] w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24 px-6 py-12">
-                {/* ... (Reste de votre contenu identique au précédent) ... */}
 
                 {/* --- COLONNE GAUCHE --- */}
                 <div className="w-full lg:w-1/2 space-y-12 animate-in fade-in slide-in-from-left-8 duration-1000">

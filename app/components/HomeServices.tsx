@@ -29,7 +29,7 @@ export default function HomeServices() {
                     title="Résidences Secondaires"
                     subtitle="Sérénité & Vigilance"
                     description="Une surveillance régulière pour une maison toujours prête à vous accueillir."
-                    link="/forfaits"
+                    link="/forfaits/#secondaire"
                 />
 
                 <ServiceCard
@@ -38,7 +38,7 @@ export default function HomeServices() {
                     title="Gestion Locative"
                     subtitle="Rendement & Accueil"
                     description="Optimisation des revenus et accueil 5 étoiles pour vos voyageurs."
-                    link="/forfaits"
+                    link="/forfaits/#saisonnier"
                 />
 
                 <ServiceCard
@@ -47,7 +47,7 @@ export default function HomeServices() {
                     title="Gîtes & Hôtes"
                     subtitle="Soutien aux Propriétaires"
                     description="Ménage, linge et assistance pour sublimer l'expérience de vos hôtes."
-                    link="/forfaits"
+                    link="/forfaits/#gites"
                 />
             </div>
 
@@ -67,26 +67,28 @@ export default function HomeServices() {
 function ServiceCard({ imageSrc, icon, title, subtitle, description, link }: any) {
     return (
         <Link href={link} className="group block w-full relative overflow-hidden rounded-sm
-            min-h-[300px] md:min-h-[400px] h-full"
+            min-h-[300px] md:min-h-[400px] h-full gpu-accelerated"
         >
-            {/* --- OPTIMISATION NEXT/IMAGE --- */}
+            {/* Image optimisée avec transitions GPU */}
             <div className="absolute inset-0 w-full h-full">
                 <Image
                     src={imageSrc}
                     alt={title}
                     fill
-                    sizes="(max-width: 768px) 100vw, 33vw" // Indispensable pour la fluidité (ne charge pas une image trop grande)
-                    className="object-cover opacity-90 transition-transform duration-1000 ease-out
-                               group-hover:scale-110 will-change-transform" // will-change force l'usage du GPU
-                    quality={85} // Bon compromis poids/netteté
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover opacity-90 optimized-image-hover group-hover:scale-105"
+                    quality={75}
+                    loading="lazy"
                 />
             </div>
 
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-500"></div>
+            {/* Overlay avec transition optimisée */}
+            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300"></div>
             <div className="absolute inset-0 border border-[#F7F5F0]/10 m-3 z-20 pointer-events-none"></div>
 
             <div className="relative z-10 h-full p-6 md:p-8 flex flex-col items-center justify-center text-center">
-                <div className="mb-4 p-3 rounded-full border border-[#F7F5F0]/30 text-[#F7F5F0] group-hover:bg-[#B88A44] group-hover:border-[#B88A44] transition-all duration-500">
+                {/* Icône avec transitions spécifiques (pas transition-all) */}
+                <div className="mb-4 p-3 rounded-full border border-[#F7F5F0]/30 text-[#F7F5F0] group-hover:bg-[#B88A44] group-hover:border-[#B88A44] transition-colors duration-300">
                     {icon}
                 </div>
                 <h3 className="text-[#F7F5F0] text-lg font-serif uppercase tracking-[0.2em] mb-2">
@@ -98,7 +100,8 @@ function ServiceCard({ imageSrc, icon, title, subtitle, description, link }: any
                 <p className="text-[#F7F5F0]/80 text-[11px] leading-relaxed uppercase tracking-wider line-clamp-3">
                     {description}
                 </p>
-                <div className="w-0 group-hover:w-12 h-[1px] bg-[#B88A44] mt-6 transition-all duration-500"></div>
+                {/* Ligne avec transition de largeur optimisée */}
+                <div className="w-0 group-hover:w-12 h-[1px] bg-[#B88A44] mt-6 transition-[width] duration-300"></div>
             </div>
         </Link>
     );

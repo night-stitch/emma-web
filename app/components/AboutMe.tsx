@@ -14,12 +14,16 @@ export default function AboutMe() {
                 {/* Cadre décoratif doré */}
                 <div className="absolute top-4 -left-4 w-full h-full border border-[#B88A44]/30 z-0 hidden md:block"></div>
 
-                <div className="relative w-full h-full overflow-hidden rounded-sm shadow-2xl z-10 bg-[#F7F5F0]">
+                {/* Image avec filtre grayscale optimisé */}
+                <div className="relative w-full h-full overflow-hidden rounded-sm shadow-2xl z-10 bg-[#F7F5F0] gpu-accelerated">
                     <Image
                         src="/emma-portrait.jpg"
                         alt="Emma Nadal - Fondatrice"
                         fill
-                        className="object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+                        sizes="(max-width: 768px) 100vw, 400px"
+                        quality={75}
+                        loading="lazy"
+                        className="object-cover grayscale-optimized"
                     />
                 </div>
             </div>

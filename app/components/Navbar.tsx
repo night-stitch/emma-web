@@ -40,12 +40,12 @@ export default function Navbar() {
                 {/* LOGO */}
                 <div className="shrink-0">
                     <Link href="/" className="relative flex items-center group">
-                        <div className="relative w-[80px] md:w-[110px] h-20">
-                            <div className="absolute w-[120px] h-[120px] md:w-[130px] md:h-[130px] top-1/2 -translate-y-1/2 -left-2 md:left-0 transition-transform duration-500 group-hover:scale-105">
+                        <div className="relative w-[30px] md:w-[50px] h-10 md:h-12">
+                            <div className="absolute w-[35px] h-[35px] md:w-[60px] md:h-[60px] top-1/2 -translate-y-1/2 left-0 transition-transform duration-500 group-hover:scale-105">
                                 <Image src="/logo.png" alt="Logo" fill className="object-contain" priority />
                             </div>
                         </div>
-                        <div className="flex flex-col justify-center ml-1 md:ml-4">
+                        <div className="flex flex-col justify-center ml-2 md:ml-4">
                             <span className="text-[#B88A44] text-sm md:text-xl font-serif uppercase tracking-[0.3em] leading-none">La Clé</span>
                             <span className="text-[#B88A44] text-sm md:text-xl font-serif uppercase tracking-[0.3em] mt-1 leading-none">Provençale</span>
                         </div>
@@ -70,7 +70,7 @@ export default function Navbar() {
                             <Link href="/admin/messages" className="flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:opacity-70 transition-opacity">
                                 <MessageSquare size={14} /> Messages
                             </Link>
-                            <Link href="/admin/nouveau-client" className="flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:opacity-70 transition-opacity">
+                            <Link href="/admin/client" className="flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:opacity-70 transition-opacity">
                                 <UserPlus size={14} /> Nouveau
                             </Link>
                             <Link href="/admin/facturation" className="flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:opacity-70 transition-opacity">
@@ -116,8 +116,11 @@ export default function Navbar() {
                             <Link href="/admin/messages" onClick={() => setIsOpen(false)} className="text-[#B88A44] text-sm uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-3">
                                 <MessageSquare size={18} /> Messagerie
                             </Link>
-                            <Link href="/admin/nouveau-client" onClick={() => setIsOpen(false)} className="text-[#B88A44] text-sm uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-3">
+                            <Link href="/admin/client" onClick={() => setIsOpen(false)} className="text-[#B88A44] text-sm uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-3">
                                 <UserPlus size={18} /> Nouveau Client
+                            </Link>
+                            <Link href="/admin/facturation" onClick={() => setIsOpen(false)} className="text-[#B88A44] text-sm uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-3">
+                                <FileText size={18} /> Facturation
                             </Link>
                         </div>
                     )}

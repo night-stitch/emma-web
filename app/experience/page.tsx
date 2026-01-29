@@ -1,10 +1,19 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function ExperiencePage() {
     return (
         <div className="relative">
+            {/* Bouton Retour */}
+            <Link
+                href="/"
+                className="fixed top-24 left-4 z-50 flex items-center gap-2 bg-white/90 backdrop-blur-sm text-[#1A1A1A] px-4 py-2 rounded-full shadow-lg hover:bg-[#B88A44] hover:text-white transition-all text-[10px] uppercase tracking-widest font-bold"
+            >
+                <ArrowLeft size={14} /> Retour
+            </Link>
             {/* Section 1 - Rouge */}
             <section
                 id="exp-1"

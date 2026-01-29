@@ -6,14 +6,15 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
 const firebaseConfig = {
-    apiKey: "AIzaSyCSH3qCa-4CocFIRdm3IRNbIvRCW4vKNmY",
-    authDomain: "emma-web-6c203.firebaseapp.com",
-    projectId: "emma-web-6c203",
-    storageBucket: "emma-web-6c203.firebasestorage.app",
-    messagingSenderId: "383714487743",
-    appId: "1:383714487743:web:9ac466bcb82ee17e58850a",
-    measurementId: "G-YWGHTNHB7T"
+    apiKey: "AIzaSyDC9yC6qS6p3jEvlq9zZSnYjrHD1rYCO_s",
+    authDomain: "lacleprovencale-c1c69.firebaseapp.com",
+    projectId: "lacleprovencale-c1c69",
+    storageBucket: "lacleprovencale-c1c69.firebasestorage.app",
+    messagingSenderId: "891304739802",
+    appId: "1:891304739802:web:3ef87605a9a076415bf6e3",
+    measurementId: "G-6XY95WCKF7"
 };
 
 // Initialisation "intelligente" pour Next.js :

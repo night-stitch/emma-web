@@ -8,6 +8,7 @@ import {
     User, Home, Key, Wifi, Droplet, Save, Loader2,
     CheckCircle, ArrowRight, ArrowLeft, Trash2, Calendar, ClipboardList
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function NewClientPage() {
     const router = useRouter();
@@ -55,6 +56,9 @@ export default function NewClientPage() {
 
                 {/* PROGRESSION */}
                 <div className="mb-12">
+                    <Link href="/admin" className="inline-flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold mb-4 hover:text-[#1A1A1A] transition-colors">
+                        <ArrowLeft size={14} /> Retour
+                    </Link>
                     <div className="flex justify-between items-center mb-4">
                         <h1 className="text-[#1A1A1A] text-2xl font-serif uppercase tracking-widest">
                             Nouvelle <span className="text-[#B88A44]">Fiche</span>

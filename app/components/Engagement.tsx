@@ -52,17 +52,18 @@ export default function Engagement() {
                 {/* Cadre décoratif */}
                 <div className="absolute top-5 -right-5 w-full h-full border border-[#B88A44]/30 z-0 hidden md:block"></div>
 
-                {/* Image principale */}
-                <div className="relative w-full h-full overflow-hidden rounded-sm shadow-2xl z-10">
+                {/* Image principale - optimisée avec lazy loading */}
+                <div className="relative w-full h-full overflow-hidden rounded-sm shadow-2xl z-10 gpu-accelerated">
                     <Image
                         src="/engagement.jpg"
                         alt="Paysage Provence"
                         fill
-                        priority
-                        quality={85}
-                        className="object-cover hover:scale-105 transition-transform duration-1000"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        quality={75}
+                        loading="lazy"
+                        className="object-cover optimized-image-hover hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-[#B88A44]/10 mix-blend-overlay"></div>
+                    <div className="absolute inset-0 bg-[#B88A44]/10 mix-blend-overlay pointer-events-none"></div>
                 </div>
             </div>
 
@@ -70,20 +71,20 @@ export default function Engagement() {
     );
 }
 
-// --- SOUS-COMPOSANT ITEM AVEC TEXTE AGRANDI ---
+// --- SOUS-COMPOSANT ITEM - Transitions optimisées ---
 function EngagementItem({ icon, title, text }: any) {
     return (
         <div className="flex flex-col sm:flex-row gap-6 group items-center sm:items-start text-center sm:text-left">
-            {/* Icône encerclée (Agrandie) */}
+            {/* Icône avec transition de couleur uniquement */}
             <div className="shrink-0">
-                <div className="w-14 h-14 md:w-16 md:h-16 rounded-full border border-[#B88A44]/20 flex items-center justify-center text-[#B88A44] group-hover:bg-[#B88A44] group-hover:text-white transition-all duration-500 shadow-sm">
+                <div className="w-14 h-14 md:w-16 md:h-16 rounded-full border border-[#B88A44]/20 flex items-center justify-center text-[#B88A44] group-hover:bg-[#B88A44] group-hover:text-white transition-colors duration-300 shadow-sm">
                     {icon}
                 </div>
             </div>
 
-            {/* Texte (Agrandi) */}
+            {/* Texte */}
             <div className="space-y-2">
-                <h3 className="text-[#1A1A1A] text-lg md:text-xl font-serif uppercase tracking-[0.15em] group-hover:text-[#B88A44] transition-colors font-bold">
+                <h3 className="text-[#1A1A1A] text-lg md:text-xl font-serif uppercase tracking-[0.15em] group-hover:text-[#B88A44] transition-colors duration-300 font-bold">
                     {title}
                 </h3>
                 <p className="text-[#1A1A1A]/70 text-sm md:text-base leading-relaxed tracking-wide max-w-lg">

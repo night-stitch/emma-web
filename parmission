@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Règles pour la collection de CLIENTS
+    match /clients/{clientId} {
+      allow read, write: if true;
+    }
+
+    // 2. Règles pour la collection de MESSAGES (Formulaire de contact)
+    match /messages/{messageId} {
+      allow read, write: if true;
+    }
+
+    // 3. Règles pour la collection de MISSIONS (Planning)
+    match /missions/{missionId} {
+      allow read, write: if true;
+    }
+
+    // 4. Règles pour la collection de PRESTATIONS (Catalogue)
+    match /prestations/{prestationId} {
+      allow read, write: if true;
+    }
+
+    // 5. Règles pour la collection de SETTINGS (Taux horaire, etc.)
+    match /settings/{settingId} {
+      allow read, write: if true;
+    }
+
+    // 6. Règles pour la collection de PRODUCTS (Catalogue produits)
+    match /products/{productId} {
+      allow read, write: if true;
+    }
+
+    // 7. Règles pour la collection de PRODUCT CATEGORIES
+    match /productCategories/{categoryId} {
+      allow read, write: if true;
+    }
+
+    // 8. NOUVEAU : Règles pour la collection de PRESTATION CATEGORIES
+    match /prestationCategories/{categoryId} {
+      allow read, write: if true;
+    }
+
+    // 9. Règles pour la collection de DOCUMENTS (Devis & Factures)
+    match /documents/{documentId} {
+      allow read, write: if true;
+    }
+
+    // Règle par défaut : on bloque tout le reste par sécurité
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
