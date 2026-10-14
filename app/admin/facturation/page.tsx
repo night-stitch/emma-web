@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { notify, askConfirm } from '@/lib/feedback';
 
 type MobileView = 'form' | 'categories' | 'preview' | 'documents';
 
@@ -537,11 +538,11 @@ function FacturationContent() {
     // Sauvegarder le document dans Firebase et l'associer au client
     const saveDocument = async (send: boolean = false) => {
         if (!invoice.clientId) {
-            alert('Veuillez sélectionner un client');
+            notify('Veuillez sélectionner un client');
             return;
         }
         if (invoice.categories.length === 0 && invoice.products.length === 0) {
-            alert('Veuillez ajouter au moins une prestation ou un produit');
+            notify('Veuillez ajouter au moins une prestation ou un produit');
             return;
         }
 
@@ -574,9 +575,9 @@ function FacturationContent() {
                     const subject = encodeURIComponent(`${documentType === 'devis' ? 'Devis' : 'Facture'} N° ${invoice.invoiceNumber} - La Clé Provençale`);
                     const body = encodeURIComponent(`Bonjour ${invoice.clientName},\n\nVeuillez trouver ci-joint votre ${documentType} N° ${invoice.invoiceNumber}.\n\nMontant TTC : ${totalTTC.toFixed(2)} €\n\nCordialement,\nLa Clé Provençale`);
                     window.open(`mailto:${client?.email || ''}?subject=${subject}&body=${body}`, '_blank');
-                    alert(`${documentType === 'devis' ? 'Devis' : 'Facture'} mis(e) à jour et envoyé(e) !`);
+                    notify(`${documentType === 'devis' ? 'Devis' : 'Facture'} mis(e) à jour et envoyé(e) !`);
                 } else {
-                    alert(`${documentType === 'devis' ? 'Devis' : 'Facture'} mis(e) à jour !`);
+                    notify(`${documentType === 'devis' ? 'Devis' : 'Facture'} mis(e) à jour !`);
                 }
             } else {
                 // Créer un nouveau document
@@ -595,9 +596,9 @@ function FacturationContent() {
                     const subject = encodeURIComponent(`${documentType === 'devis' ? 'Devis' : 'Facture'} N° ${invoice.invoiceNumber} - La Clé Provençale`);
                     const body = encodeURIComponent(`Bonjour ${invoice.clientName},\n\nVeuillez trouver ci-joint votre ${documentType} N° ${invoice.invoiceNumber}.\n\nMontant TTC : ${totalTTC.toFixed(2)} €\n\nCordialement,\nLa Clé Provençale`);
                     window.open(`mailto:${client?.email || ''}?subject=${subject}&body=${body}`, '_blank');
-                    alert(`${documentType === 'devis' ? 'Devis' : 'Facture'} envoyé(e) et sauvegardé(e) !`);
+                    notify(`${documentType === 'devis' ? 'Devis' : 'Facture'} envoyé(e) et sauvegardé(e) !`);
                 } else {
-                    alert(`${documentType === 'devis' ? 'Devis' : 'Facture'} sauvegardé(e) !`);
+                    notify(`${documentType === 'devis' ? 'Devis' : 'Facture'} sauvegardé(e) !`);
                 }
             }
 
@@ -626,19 +627,19 @@ function FacturationContent() {
             });
         } catch (error) {
             console.error("Erreur sauvegarde:", error);
-            alert("Erreur lors de la sauvegarde");
+            notify("Erreur lors de la sauvegarde");
         }
     };
 
     // Supprimer un document
     const deleteDocument = async (docId: string) => {
-        if (!confirm('Supprimer ce document ?')) return;
+        if (!await askConfirm('Supprimer ce document ?')) return;
         try {
             await deleteDoc(doc(db, "documents", docId));
             setSavedDocuments(prev => prev.filter(d => d.id !== docId));
         } catch (error) {
             console.error("Erreur suppression:", error);
-            alert("Erreur lors de la suppression");
+            notify("Erreur lors de la suppression");
         }
     };
 

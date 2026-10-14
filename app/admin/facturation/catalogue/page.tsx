@@ -9,6 +9,7 @@ import {
     Scissors, Leaf, Key, MoreHorizontal, LayoutGrid, List
 } from 'lucide-react';
 import Link from 'next/link';
+import { notify, askConfirm } from '@/lib/feedback';
 
 type MobileView = 'categories' | 'list';
 
@@ -177,7 +178,7 @@ export default function CataloguePage() {
     };
 
     const handleDeletePrestation = async (id: string) => {
-        if (!confirm("Supprimer cette prestation ?")) return;
+        if (!await askConfirm("Supprimer cette prestation ?")) return;
 
         try {
             await deleteDoc(doc(db, "prestations", id));
@@ -247,10 +248,10 @@ export default function CataloguePage() {
     const handleDeleteCategory = async (id: string) => {
         const prestationsInCategory = prestations.filter(p => p.category === id).length;
         if (prestationsInCategory > 0) {
-            alert(`Impossible de supprimer cette catégorie car elle contient ${prestationsInCategory} prestation(s).`);
+            notify(`Impossible de supprimer cette catégorie car elle contient ${prestationsInCategory} prestation(s).`);
             return;
         }
-        if (!confirm("Supprimer cette catégorie ?")) return;
+        if (!await askConfirm("Supprimer cette catégorie ?")) return;
 
         try {
             await deleteDoc(doc(db, "prestationCategories", id));

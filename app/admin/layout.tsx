@@ -1,16 +1,12 @@
-'use client';
+import type { Metadata } from 'next';
+import AdminShell from './AdminShell';
 
-import React from 'react';
+// L'administration ne doit jamais apparaître dans Google
+export const metadata: Metadata = {
+    title: 'Administration',
+    robots: { index: false, follow: false },
+};
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    return (
-        /* h-screen + flex-col : On verrouille la hauteur totale.
-           Le contenu ne pourra jamais dépasser la taille de l'écran.
-        */
-        <div className="flex flex-col">
-            <main className="flex-1 overflow-hidden relative pt-20">
-                {children}
-            </main>
-        </div>
-    );
+    return <AdminShell>{children}</AdminShell>;
 }

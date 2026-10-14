@@ -12,7 +12,10 @@
       {
         "source": "**/*.png",
         "headers": [
-          { "key": "Cache-Control", "value": "no-cache, max-age=0" }
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, max-age=0"
+          }
         ]
       }
     ],
@@ -28,31 +31,14 @@
       {
         "source": "/reply/**",
         "destination": "/reply/placeholder.html"
-      },
-      {
-        "source": "**",
-        "destination": "/index.html"
       }
     ]
   },
   "firestore": {
+    "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "disallowLegacyRuntimeConfig": true,
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
-      ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run build"
-      ]
-    }
-  ]
+  "storage": {
+    "rules": "storage.rules"
+  }
 }

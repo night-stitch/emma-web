@@ -1,10 +1,13 @@
 'use client';
 
+import { useT } from '@/lib/i18n';
+
 import Image from 'next/image';
 
 export default function AboutMe() {
+    const t = useT();
     return (
-        <section className="relative w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20 px-6
+        <div className="relative w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20 px-6
             h-auto py-20
             md:h-full md:py-24"
         >
@@ -17,7 +20,7 @@ export default function AboutMe() {
                 {/* Image avec filtre grayscale optimisé */}
                 <div className="relative w-full h-full overflow-hidden rounded-sm shadow-2xl z-10 bg-[#F7F5F0] gpu-accelerated">
                     <Image
-                        src="/emma-portrait.jpg"
+                        src="/Emma-photo.jpeg"
                         alt="Emma Nadal - Fondatrice"
                         fill
                         sizes="(max-width: 768px) 100vw, 400px"
@@ -34,28 +37,26 @@ export default function AboutMe() {
                 {/* En-tête typographique */}
                 <div className="space-y-4">
                     <span className="text-[#B88A44] text-[10px] uppercase tracking-[0.4em] font-bold block">
-                        La Fondatrice
+                        {t('La Fondatrice')}
                     </span>
                     <h2 className="text-[#1A1A1A] text-3xl md:text-5xl font-serif uppercase tracking-widest leading-tight">
-                        Découvrez <br />
-                        <span className="italic text-[#B88A44] lowercase pr-2">qui je suis.</span>
+                        {t('Découvrez')} <br />
+                        <span className="italic text-[#B88A44] lowercase pr-2">{t('qui je suis.')}</span>
                     </h2>
                 </div>
 
                 {/* Corps de texte : Serif & Interlignage large */}
                 <div className="space-y-6 text-[#1A1A1A]/70 text-sm md:text-base leading-relaxed tracking-wide font-serif italic text-justify md:text-left border-l-2 border-[#B88A44]/10 md:pl-8">
                     <p>
-                        Originaire de Gordes, au cœur de la Provence, amoureuse de ma région et de son art de vivre,
-                        j'ai fondé <strong className="font-bold text-[#1A1A1A] not-italic">La Clé Provençale</strong>,
-                        une conciergerie locale dédiée à la gestion et à l'entretien des résidences dans le Luberon.
+                        {t('Originaire de Gordes, au cœur de la Provence, amoureuse de ma région et de son art de vivre, j’ai fondé')}{' '}
+                        <strong className="font-bold text-[#1A1A1A] not-italic">La Clé Provençale</strong>
+                        {t(', une conciergerie locale dédiée à la gestion et à l’entretien des résidences dans le Luberon.')}
                     </p>
                     <p>
-                        Mon ambition est simple : offrir à chaque propriétaire une tranquillité d'esprit totale,
-                        en prenant soin de leur bien avec la même attention que s'il s'agissait du mien.
+                        {t('Mon ambition est simple : offrir à chaque propriétaire une tranquillité d’esprit totale, en prenant soin de leur bien avec la même attention que s’il s’agissait du mien.')}
                     </p>
                     <p>
-                        Discrétion, confiance et exigence sont au cœur de chacun de mes services, afin que vous puissiez
-                        profiter pleinement de votre propriété, en toute sérénité.
+                        {t('Discrétion, confiance et exigence sont au cœur de chacun de mes services, afin que vous puissiez profiter pleinement de votre propriété, en toute sérénité.')}
                     </p>
                 </div>
 
@@ -65,13 +66,13 @@ export default function AboutMe() {
                         Emma Nadal
                     </span>
                     <div className="h-px w-20 bg-[#B88A44]/40 mb-1"></div>
-                    <span className="text-[#B88A44] text-[9px] uppercase tracking-[0.3em] font-bold">
-                        Fondatrice & Gérante
+                    <span className="text-[#B88A44] text-[10px] uppercase tracking-[0.3em] font-bold">
+                        {t('Fondatrice & Gérante')}
                     </span>
                 </div>
 
             </div>
 
-        </section>
+        </div>
     );
 }

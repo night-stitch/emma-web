@@ -1,7 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
+import { getStorage } from "firebase/storage";
+import { getAuth } from "firebase/auth";
+// SDK Firebase utilisés : Firestore (données), Storage (photos), Auth (admin)
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
@@ -24,5 +26,11 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 // On initialise la base de données
 const db = getFirestore(app);
 
+// Stockage des photos (page Expérience)
+const storage = getStorage(app);
+
+// Connexion de l'administratrice (Firebase Authentication)
+const auth = getAuth(app);
+
 // On exporte la db pour l'utiliser dans nos formulaires
-export { db };
+export { db, storage, auth };

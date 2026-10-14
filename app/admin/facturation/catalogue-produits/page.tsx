@@ -8,6 +8,7 @@ import {
     ArrowLeft, Search, Euro, FolderPlus, Folder, Tag, LayoutGrid, List
 } from 'lucide-react';
 import Link from 'next/link';
+import { notify, askConfirm } from '@/lib/feedback';
 
 type MobileView = 'categories' | 'list';
 
@@ -145,7 +146,7 @@ export default function CatalogueProduits() {
     };
 
     const handleDeleteProduct = async (id: string) => {
-        if (!confirm("Supprimer ce produit ?")) return;
+        if (!await askConfirm("Supprimer ce produit ?")) return;
 
         try {
             await deleteDoc(doc(db, "products", id));
@@ -219,10 +220,10 @@ export default function CatalogueProduits() {
     const handleDeleteCategory = async (id: string) => {
         const productsInCategory = products.filter(p => p.category === id).length;
         if (productsInCategory > 0) {
-            alert(`Impossible de supprimer cette catégorie car elle contient ${productsInCategory} produit(s).`);
+            notify(`Impossible de supprimer cette catégorie car elle contient ${productsInCategory} produit(s).`);
             return;
         }
-        if (!confirm("Supprimer cette catégorie ?")) return;
+        if (!await askConfirm("Supprimer cette catégorie ?")) return;
 
         try {
             await deleteDoc(doc(db, "productCategories", id));

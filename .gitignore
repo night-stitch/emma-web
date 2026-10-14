@@ -1,0 +1,18 @@
+# Dépendances et builds
+node_modules/
+.next/
+out/
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.idea/
+
+# Firebase
+.firebase/
+firebase-debug.log*
+*.local
+
+# Originaux des images (lourds, gardés en local seulement)
+_images-originales/
+_archive/

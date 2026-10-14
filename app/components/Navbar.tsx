@@ -3,26 +3,29 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import {Lock, UserPlus, LayoutDashboard, MessageSquare, FileText} from 'lucide-react';
+import {Lock, UserPlus, LayoutDashboard, MessageSquare, FileText, Home, ChevronDown, LogOut, Tag} from 'lucide-react';
+import { useUnreadMessages } from '@/lib/useUnreadMessages';
+import { useAdminAuth, adminSignOut } from '@/lib/adminAuth';
+import { useT, LangSwitch } from '@/lib/i18n';
 
 export default function Navbar() {
+    const t = useT();
     const [isOpen, setIsOpen] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const { isAdmin } = useAdminAuth(); // liens admin visibles uniquement une fois connectée
+    const unread = useUnreadMessages(isAdmin); // pastille « nouveaux messages »
+    const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
 
+    // Nettoie l'ancien système (?secret=emma) qui n'est plus utilisé
     useEffect(() => {
-        const isAdminStored = localStorage.getItem('isAdmin') === 'true';
-        if (isAdminStored) {
-            setIsAdmin(true);
-        }
-
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('secret') === 'emma') {
-            localStorage.setItem('isAdmin', 'true');
-            setIsAdmin(true);
-            alert("Mode Administratrice Activé 🔓");
-            window.location.href = '/admin';
-        }
+        try { localStorage.removeItem('isAdmin'); } catch { /* ignore */ }
     }, []);
+
+    const handleSignOut = async () => {
+        setIsAdminMenuOpen(false);
+        setIsOpen(false);
+        await adminSignOut();
+        window.location.href = '/';
+    };
 
     useEffect(() => {
         document.body.style.overflow = isOpen ? 'hidden' : 'unset';
@@ -31,6 +34,16 @@ export default function Navbar() {
     const links = [
         { name: 'Accueil', href: '/' },
         { name: 'Forfaits', href: '/forfaits' },
+        { name: 'Expérience', href: '/experience' },
+    ];
+
+    const adminLinks = [
+        { name: 'Dashboard', href: '/admin', Icon: LayoutDashboard },
+        { name: 'Messages', href: '/admin/messages', Icon: MessageSquare },
+        { name: 'Nouveau client', href: '/admin/client', Icon: UserPlus },
+        { name: 'Facturation', href: '/admin/facturation', Icon: FileText },
+        { name: 'Expérience', href: '/admin/experience', Icon: Home },
+        { name: 'Forfaits', href: '/admin/forfaits', Icon: Tag },
     ];
 
     return (
@@ -56,26 +69,42 @@ export default function Navbar() {
                 <div className="hidden min-[1101px]:flex items-center gap-6">
                     {links.map((l) => (
                         <Link key={l.name} href={l.href} className="text-[#1A1A1A] text-[11px] uppercase tracking-[0.3em] font-medium hover:text-[#B88A44] transition-colors">
-                            {l.name}
+                            {t(l.name)}
                         </Link>
                     ))}
 
-                    {/* --- LIENS ADMIN DESKTOP --- */}
+                    {/* --- MENU ADMIN DESKTOP (déroulant pour ne pas surcharger la barre) --- */}
                     {isAdmin && (
-                        <div className="flex items-center gap-6 border-x border-[#B88A44]/10 px-6 mx-2">
-                            <Link href="/admin" className="flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:opacity-70 transition-opacity">
-                                <LayoutDashboard size={14} /> Dashboard
-                            </Link>
-                            {/* NOUVEAU LIEN MESSAGERIE */}
-                            <Link href="/admin/messages" className="flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:opacity-70 transition-opacity">
-                                <MessageSquare size={14} /> Messages
-                            </Link>
-                            <Link href="/admin/client" className="flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:opacity-70 transition-opacity">
-                                <UserPlus size={14} /> Nouveau
-                            </Link>
-                            <Link href="/admin/facturation" className="flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:opacity-70 transition-opacity">
-                                <FileText size={14} /> Facturation
-                            </Link>
+                        <div className="relative group border-x border-[#B88A44]/10 px-6 mx-2 h-20 flex items-center">
+                            <button
+                                type="button"
+                                onClick={() => setIsAdminMenuOpen((o) => !o)}
+                                className="flex items-center gap-2 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:opacity-70 transition-opacity"
+                            >
+                                <Lock size={14} /> Admin
+                                {unread > 0 && <Badge n={unread} />}
+                                <ChevronDown size={12} className={`transition-transform ${isAdminMenuOpen ? 'rotate-180' : 'group-hover:rotate-180'}`} />
+                            </button>
+                            <div className={`absolute top-full right-0 min-w-[220px] bg-[#F7F5F0] border border-[#B88A44]/15 shadow-xl py-2 transition-all duration-200 ${isAdminMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0'}`}>
+                                {adminLinks.map(({ name, href, Icon }) => (
+                                    <Link
+                                        key={href}
+                                        href={href}
+                                        onClick={() => setIsAdminMenuOpen(false)}
+                                        className="flex items-center gap-3 px-5 py-3 text-[#B88A44] text-[10px] uppercase tracking-widest font-bold hover:bg-[#B88A44] hover:text-white transition-colors"
+                                    >
+                                        <Icon size={14} /> {name}
+                                        {href === '/admin/messages' && unread > 0 && <Badge n={unread} className="ml-auto" />}
+                                    </Link>
+                                ))}
+                                <button
+                                    type="button"
+                                    onClick={handleSignOut}
+                                    className="w-full flex items-center gap-3 px-5 py-3 border-t border-[#B88A44]/15 mt-1 text-[#1A1A1A]/60 text-[10px] uppercase tracking-widest font-bold hover:bg-[#1A1A1A] hover:text-white transition-colors"
+                                >
+                                    <LogOut size={14} /> Déconnexion
+                                </button>
+                            </div>
                         </div>
                     )}
 
@@ -83,8 +112,9 @@ export default function Navbar() {
                         href="/contact"
                         className="px-8 py-2.5 border border-[#B88A44] text-[#1A1A1A] text-[10px] uppercase tracking-[0.3em] hover:bg-[#B88A44] hover:text-white transition-all ml-2"
                     >
-                        Contact
+                        {t('Contact')}
                     </Link>
+                    <LangSwitch />
                 </div>
 
                 {/* BURGER (Mobile) */}
@@ -102,7 +132,7 @@ export default function Navbar() {
                 <div className="flex flex-col items-center gap-8 text-center w-full">
                     {links.map((l) => (
                         <Link key={l.name} href={l.href} onClick={() => setIsOpen(false)} className="text-[#1A1A1A] text-2xl font-serif uppercase tracking-[0.4em]">
-                            {l.name}
+                            {t(l.name)}
                         </Link>
                     ))}
 
@@ -115,6 +145,7 @@ export default function Navbar() {
                             {/* NOUVEAU LIEN MESSAGERIE MOBILE */}
                             <Link href="/admin/messages" onClick={() => setIsOpen(false)} className="text-[#B88A44] text-sm uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-3">
                                 <MessageSquare size={18} /> Messagerie
+                                {unread > 0 && <Badge n={unread} />}
                             </Link>
                             <Link href="/admin/client" onClick={() => setIsOpen(false)} className="text-[#B88A44] text-sm uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-3">
                                 <UserPlus size={18} /> Nouveau Client
@@ -122,6 +153,15 @@ export default function Navbar() {
                             <Link href="/admin/facturation" onClick={() => setIsOpen(false)} className="text-[#B88A44] text-sm uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-3">
                                 <FileText size={18} /> Facturation
                             </Link>
+                            <Link href="/admin/experience" onClick={() => setIsOpen(false)} className="text-[#B88A44] text-sm uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-3">
+                                <Home size={18} /> Expérience
+                            </Link>
+                            <Link href="/admin/forfaits" onClick={() => setIsOpen(false)} className="text-[#B88A44] text-sm uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-3">
+                                <Tag size={18} /> Forfaits
+                            </Link>
+                            <button type="button" onClick={handleSignOut} className="text-[#1A1A1A]/50 text-sm uppercase tracking-[0.3em] font-bold flex items-center justify-center gap-3">
+                                <LogOut size={18} /> Déconnexion
+                            </button>
                         </div>
                     )}
 
@@ -130,10 +170,21 @@ export default function Navbar() {
                         onClick={() => setIsOpen(false)}
                         className="mt-4 px-12 py-4 border border-[#B88A44] text-[#B88A44] text-xs uppercase tracking-[0.4em] font-bold"
                     >
-                        Nous contacter
+                        {t('Nous contacter')}
                     </Link>
+                    <LangSwitch className="mt-2 text-xs" />
                 </div>
             </div>
         </nav>
+    );
+}
+
+/** Pastille dorée avec un nombre (ex. messages à traiter). */
+function Badge({ n, className = '' }: { n: number; className?: string }) {
+    return (
+        <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[#B88A44] text-white text-[9px] font-bold tracking-normal leading-none animate-pulse ${className}`}
+              aria-label={`${n} message${n > 1 ? 's' : ''} à traiter`}>
+            {n > 99 ? '99+' : n}
+        </span>
     );
 }

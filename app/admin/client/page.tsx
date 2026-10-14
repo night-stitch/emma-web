@@ -23,6 +23,7 @@ import {
     ArrowRight, Loader2, Save
 } from 'lucide-react';
 import Link from 'next/link';
+import { notify, askConfirm } from '@/lib/feedback';
 
 function ClientPageContent() {
     const searchParams = useSearchParams();
@@ -105,9 +106,9 @@ function ClientPageContent() {
             await updateDoc(docRef, editData);
             setClient(editData);
             setIsEditing(false);
-            alert("Fiche client mise à jour !");
+            notify("Fiche client mise à jour !");
         } catch (error) {
-            alert("Erreur lors de la mise à jour");
+            notify("Erreur lors de la mise à jour");
         }
         setLoading(false);
     };
@@ -132,11 +133,11 @@ function ClientPageContent() {
             window.open(googleUrl, '_blank');
             setIsModalOpen(false);
             window.location.reload();
-        } catch (error) { alert("Erreur mission"); }
+        } catch (error) { notify("Erreur mission"); }
     };
 
     const deleteMission = async (missionId: string) => {
-        if (confirm("Supprimer cette mission ?")) {
+        if (await askConfirm("Supprimer cette mission ?")) {
             await deleteDoc(doc(db, "missions", missionId));
             setMissions(missions.filter(m => m.id !== missionId));
         }
@@ -178,7 +179,7 @@ function ClientPageContent() {
                 router.push(`/admin/client?id=${docRef.id}`);
             }, 1500);
         } catch (error) {
-            alert("Erreur lors de la sauvegarde.");
+            notify("Erreur lors de la sauvegarde.");
             setLoading(false);
         }
     };

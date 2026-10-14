@@ -8,7 +8,10 @@ const categories = [
     { id: 'gites', name: 'Gîtes & Maisons d’Hôtes' },
 ];
 
-export default function CategoryFilter({ activeCategory, setActiveCategory }: any) {
+export default function CategoryFilter({ activeCategory, setActiveCategory }: {
+    activeCategory: string;
+    setActiveCategory: (id: string) => void;
+}) {
     const scrollToSection = (id: string) => {
         setActiveCategory(id);
         const element = document.getElementById(id);

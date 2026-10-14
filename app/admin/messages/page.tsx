@@ -5,6 +5,7 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, orderBy, query, deleteDoc, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { Mail, Phone, Trash2, Calendar, User, Send, CheckCircle2, Inbox, Filter, MessageCircle, Reply, RefreshCw, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { notify, askConfirm } from '@/lib/feedback';
 // L'import emailjs a été supprimé
 
 interface ReplyMessage {
@@ -20,6 +21,8 @@ interface Message {
     email: string;
     phone: string;
     subject: string;
+    maison?: string;
+    forfait?: string;
     message: string;
     status: string;
     createdAt: any;
@@ -67,7 +70,7 @@ export default function AdminMessages() {
     const newRepliesCount = messages.filter(m => m.status === 'nouvelle réponse').length;
 
     const deleteMessage = async (id: string) => {
-        if(confirm("Supprimer définitivement ce message et toute la conversation ?")) {
+        if(await askConfirm("Supprimer définitivement ce message et toute la conversation ?")) {
             await deleteDoc(doc(db, "messages", id));
             setMessages(messages.filter(m => m.id !== id));
         }
@@ -148,12 +151,12 @@ export default function AdminMessages() {
                     : m
             ));
 
-            alert("Réponse envoyée avec succès !");
+            notify("Réponse envoyée avec succès !");
             setReplyingTo(null);
             setReplyText("");
         } catch (error) {
             console.error(error);
-            alert("Erreur lors de l'envoi de la réponse.");
+            notify("Erreur lors de l'envoi de la réponse.");
         }
         setSendingReply(false);
     };
@@ -264,7 +267,7 @@ export default function AdminMessages() {
                                                         <MessageCircle size={10} /> Nouvelle réponse
                                                     </span>
                                                 ) : (
-                                                    <span className="text-[9px] bg-[#B88A44] text-white px-2 py-0.5 uppercase tracking-widest font-bold">{msg.subject}</span>
+                                                    <span className="text-[9px] bg-[#B88A44] text-white px-2 py-0.5 uppercase tracking-widest font-bold">{subjectLabel(msg)}</span>
                                                 )}
                                                 {hasReplies && (
                                                     <span className="text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 uppercase tracking-widest font-bold flex items-center gap-1">
@@ -387,4 +390,19 @@ export default function AdminMessages() {
             )}
         </div>
     );
+}
+
+// Libellé lisible du sujet (le formulaire enregistre un code : residence, location…)
+const SUBJECT_LABELS: Record<string, string> = {
+    residence: 'Résidence secondaire',
+    location: 'Gestion locative',
+    gite: 'Gîte / maison d’hôtes',
+    autre: 'Autre demande',
+    maison: 'Maison',
+};
+function subjectLabel(msg: { subject?: string; maison?: string; forfait?: string }) {
+    const base = SUBJECT_LABELS[msg.subject || ''] || msg.subject || 'Message';
+    if (msg.maison) return `Maison : ${msg.maison}`;
+    if (msg.forfait) return `${base} · ${msg.forfait}`;
+    return base;
 }

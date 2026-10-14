@@ -9,8 +9,9 @@ import {
 import Link from 'next/link';
 import {
     Plus, User, MapPin, Phone, Trash2, Loader2,
-    Search, MessageSquare, Mail, Calendar, X, Send, Clock, FileText, ArrowLeft
+    Search, MessageSquare, Mail, Calendar, X, Send, Clock, FileText, ArrowLeft, Home, Tag
 } from 'lucide-react';
+import { notify, askConfirm } from '@/lib/feedback';
 
 export default function AdminDashboard() {
     const [clients, setClients] = useState<any[]>([]);
@@ -88,13 +89,13 @@ export default function AdminDashboard() {
             setIsEventModalOpen(false);
             window.location.reload();
         } catch (error) {
-            alert("Erreur");
+            notify("Erreur");
         }
         setLoading(false);
     };
 
     const handleDeleteClient = async (id: string) => {
-        if (confirm("Supprimer ce client ?")) {
+        if (await askConfirm("Supprimer ce client ?")) {
             await deleteDoc(doc(db, "clients", id));
             setClients(clients.filter(c => c.id !== id));
         }
@@ -127,6 +128,12 @@ export default function AdminDashboard() {
                         <button onClick={() => setIsEventModalOpen(true)} className="flex items-center justify-center gap-2 border border-[#B88A44] text-[#B88A44] px-6 py-3 md:px-8 md:py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#B88A44] hover:text-white transition-all shadow-sm">
                             <Calendar size={14} /> Planifier
                         </button>
+                        <Link href="/admin/experience" className="flex items-center justify-center gap-2 border border-[#B88A44] text-[#B88A44] px-6 py-3 md:px-8 md:py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#B88A44] hover:text-white transition-all shadow-sm">
+                            <Home size={14} /> Expérience
+                        </Link>
+                        <Link href="/admin/forfaits" className="flex items-center justify-center gap-2 border border-[#B88A44] text-[#B88A44] px-6 py-3 md:px-8 md:py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#B88A44] hover:text-white transition-all shadow-sm">
+                            <Tag size={14} /> Forfaits
+                        </Link>
                         <Link href="/admin/facturation" className="flex items-center justify-center gap-2 bg-[#B88A44] text-white px-6 py-3 md:px-8 md:py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#A07A34] transition-all shadow-lg">
                             <FileText size={14} /> Facturation
                         </Link>
@@ -160,7 +167,7 @@ export default function AdminDashboard() {
                                                 <p className="text-[#1A1A1A]/50 italic flex items-center gap-1"><Clock size={10}/> {m.startTime} - {m.endTime}</p>
                                                 <p className="text-[#1A1A1A]/50 italic truncate flex items-center gap-1"><MapPin size={10}/> {m.clientName}</p>
                                             </div>
-                                            <button onClick={async () => { if(confirm("Supprimer ?")) { await deleteDoc(doc(db, "missions", m.id)); window.location.reload(); }}} className="text-red-300 hover:text-red-600 p-1 xl:opacity-0 xl:group-hover:opacity-100 transition-opacity"><Trash2 size={14} /></button>
+                                            <button onClick={async () => { if(await askConfirm("Supprimer ?")) { await deleteDoc(doc(db, "missions", m.id)); window.location.reload(); }}} className="text-red-300 hover:text-red-600 p-1 xl:opacity-0 xl:group-hover:opacity-100 transition-opacity"><Trash2 size={14} /></button>
                                         </div>
                                     ))
                                 )}

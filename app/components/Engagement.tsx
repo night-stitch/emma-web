@@ -1,11 +1,14 @@
 'use client';
 
+import { useT } from '@/lib/i18n';
+
 import Image from 'next/image';
 import { Clock, Heart, Lock } from 'lucide-react';
 
 export default function Engagement() {
+    const t = useT();
     return (
-        <section className="relative w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-12 px-6
+        <div className="relative w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-12 px-6
             h-auto py-20
             md:h-full md:py-24"
         >
@@ -16,10 +19,10 @@ export default function Engagement() {
                 {/* En-tête de la section */}
                 <div className="text-center md:text-left space-y-4">
                     <span className="text-[#B88A44] text-xs uppercase tracking-[0.4em] block font-bold">
-                        Nos Valeurs
+                        {t('Nos Valeurs')}
                     </span>
-                    <h2 className="text-[#1A1A1A] text-4xl md:text-6xl font-serif uppercase tracking-[0.1em] leading-tight">
-                        L'Esprit <br /> <span className="text-[#B88A44]">Conciergerie</span>
+                    <h2 className="text-[#1A1A1A] text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif uppercase tracking-[0.06em] sm:tracking-[0.1em] leading-tight">
+                        {t('L’Esprit')} <br /> <span className="text-[#B88A44]">{t('Conciergerie')}</span>
                     </h2>
                 </div>
 
@@ -67,17 +70,18 @@ export default function Engagement() {
                 </div>
             </div>
 
-        </section>
+        </div>
     );
 }
 
 // --- SOUS-COMPOSANT ITEM - Transitions optimisées ---
-function EngagementItem({ icon, title, text }: any) {
+function EngagementItem({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
+    const t = useT();
     return (
         <div className="flex flex-col sm:flex-row gap-6 group items-center sm:items-start text-center sm:text-left">
             {/* Icône avec transition de couleur uniquement */}
             <div className="shrink-0">
-                <div className="w-14 h-14 md:w-16 md:h-16 rounded-full border border-[#B88A44]/20 flex items-center justify-center text-[#B88A44] group-hover:bg-[#B88A44] group-hover:text-white transition-colors duration-300 shadow-sm">
+                <div className="w-14 h-14 md:w-16 md:h-16 border border-[#B88A44]/20 flex items-center justify-center text-[#B88A44] group-hover:bg-[#B88A44] group-hover:text-white transition-colors duration-300 shadow-sm">
                     {icon}
                 </div>
             </div>
@@ -85,10 +89,10 @@ function EngagementItem({ icon, title, text }: any) {
             {/* Texte */}
             <div className="space-y-2">
                 <h3 className="text-[#1A1A1A] text-lg md:text-xl font-serif uppercase tracking-[0.15em] group-hover:text-[#B88A44] transition-colors duration-300 font-bold">
-                    {title}
+                    {t(title)}
                 </h3>
                 <p className="text-[#1A1A1A]/70 text-sm md:text-base leading-relaxed tracking-wide max-w-lg">
-                    {text}
+                    {t(text)}
                 </p>
             </div>
         </div>

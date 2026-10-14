@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─────────────────────────────────────────────────────────────
+    // Administratrices : connectées via Firebase Authentication
+    // ⚠️ Même liste que app/lib/adminAuth.ts et storage.rules
+    // ─────────────────────────────────────────────────────────────
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() in [
+          'conciergerie@lacleprovencale.fr',
+          'alexandre22nadal@gmail.com'
+        ];
+    }
+
+    // L'admin a accès à tout (clients, factures, missions, catalogue, réglages…)
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Exceptions publiques (visiteurs du site) ──
+
+    // Formulaire de contact : un visiteur peut ENVOYER un message, pas lister les autres.
+    match /messages/{messageId} {
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'message'])
+                    && request.resource.data.message is string
+                    && request.resource.data.message.size() < 5000;
+
+      // Page /reply/{id} (lien reçu par email) : le client peut lire SA conversation
+      // (l'identifiant aléatoire sert de clé) et ajouter UNE réponse, rien d'autre.
+      allow get: if true;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+                        .hasOnly(['replies', 'status', 'lastClientReplyAt'])
+                    && request.resource.data.status == 'nouvelle réponse'
+                    && request.resource.data.replies.size() == resource.data.get('replies', []).size() + 1
+                    && request.resource.data.replies[request.resource.data.replies.size() - 1].from == 'client'
+                    && request.resource.data.replies[request.resource.data.replies.size() - 1].text.size() < 4000;
+    }
+
+    // Page Expérience et accueil : lecture publique des maisons.
+    match /experiences/{experienceId} {
+      allow read: if true;
+    }
+
+    // Page Forfaits : lecture publique (modification réservée à l'admin).
+    match /forfaits/{forfaitId} {
+      allow read: if true;
+    }
+  }
+}

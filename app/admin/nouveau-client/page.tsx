@@ -9,6 +9,7 @@ import {
     CheckCircle, ArrowRight, ArrowLeft, Trash2, Calendar, ClipboardList
 } from 'lucide-react';
 import Link from 'next/link';
+import { notify } from '@/lib/feedback';
 
 export default function NewClientPage() {
     const router = useRouter();
@@ -45,7 +46,7 @@ export default function NewClientPage() {
                 router.push('/admin'); // Redirection vers le dashboard
             }, 2000);
         } catch (error) {
-            alert("Erreur lors de la sauvegarde.");
+            notify("Erreur lors de la sauvegarde.");
             setLoading(false);
         }
     };
