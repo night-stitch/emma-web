@@ -45,7 +45,13 @@ export default function MaisonSection({
     const title = loc(exp.title, exp.titleEn);
     const location = loc(exp.location, exp.locationEn);
     const description = loc(exp.description, exp.descriptionEn);
-    const longText = description.length > 280;
+    const longText = description.length > 220;
+    // Titre long → police plus petite pour garder la galerie et le bouton à l'écran
+    const titleSize = title.length > 45
+        ? 'text-xl sm:text-2xl md:text-2xl lg:text-3xl tracking-[0.06em]'
+        : title.length > 26
+            ? 'text-2xl sm:text-2xl md:text-3xl lg:text-4xl tracking-[0.08em]'
+            : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-[0.1em]';
 
     return (
         <section
@@ -82,9 +88,9 @@ export default function MaisonSection({
 
             {/* ── TEXTE ── */}
             <div className={`
-                relative z-10 flex flex-col justify-center min-h-0 flex-1
+                relative z-10 flex flex-col [justify-content:safe_center] min-h-0 flex-1
                 w-full md:w-2/5 px-6 md:px-12 lg:px-16
-                py-5 md:py-8
+                py-5 md:py-8 md:overflow-y-auto scrollbar-hide
                 ${isGauche ? 'md:order-1' : 'md:order-2'}
             `}>
                 <div className={`min-h-0 flex flex-col transition-all duration-1000 delay-300 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
@@ -95,7 +101,7 @@ export default function MaisonSection({
                         </span>
                     </div>
 
-                    <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl uppercase tracking-[0.1em] leading-tight text-[#1A1A1A] mb-2 md:mb-3">
+                    <h2 className={`font-serif uppercase leading-tight text-[#1A1A1A] mb-2 md:mb-3 ${titleSize}`}>
                         {title}
                     </h2>
 
@@ -109,7 +115,7 @@ export default function MaisonSection({
 
                     {/* Description : coupée pour tenir sur l'écran, dépliable dans son cadre */}
                     <div className={`max-w-md ${expanded ? 'max-h-[30dvh] md:max-h-[34dvh] overflow-y-auto scrollbar-hide pr-1' : ''}`}>
-                        <p className={`text-[#1A1A1A]/65 text-[13px] md:text-[15px] leading-[1.8] tracking-wide whitespace-pre-line ${expanded ? '' : 'line-clamp-3 md:line-clamp-6 md:[@media(max-height:900px)]:line-clamp-5'}`}>
+                        <p className={`text-[#1A1A1A]/65 text-[13px] md:text-[15px] leading-[1.8] tracking-wide whitespace-pre-line ${expanded ? '' : 'line-clamp-3 md:line-clamp-5 md:[@media(max-height:1000px)]:line-clamp-4'}`}>
                             {description}
                         </p>
                     </div>
@@ -132,7 +138,7 @@ export default function MaisonSection({
                                     {exp.images.length} {t('photos')}
                                 </span>
                             </div>
-                            <div className="grid grid-cols-6 md:grid-cols-3 md:[@media(max-height:900px)]:grid-cols-6 gap-1.5 md:gap-2">
+                            <div className="grid grid-cols-6 md:grid-cols-3 md:[@media(max-height:1100px)]:grid-cols-6 gap-1.5 md:gap-2">
                                 {thumbs.map((img, j) => {
                                     const isMoreTile = j === MAX_THUMBS - 1 && hidden > 0;
                                     return (
